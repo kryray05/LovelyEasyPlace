@@ -89,6 +89,8 @@ Client commands:
 
 Settings are stored in `config/lovelyeasyplace.properties`. The block selector manages the `placeOn...` values. Advanced settings can still be edited directly in this file.
 
+Multiplayer join warnings are always enabled. LovelyEasyPlace is also permanently disabled on Hypixel, MCC Island, CubeCraft, Wynncraft, and ManaCube; these built-in safety entries cannot be removed through the configuration file. `disabledServers` can still be used to add more servers.
+
 ```properties
 enabled=true
 placeOnChests=true
@@ -132,6 +134,17 @@ gradle build
 ```
 
 The generated mod jar is written to `build/libs/lovelyeasyplace-1.0.0.jar`.
+
+## Releasing
+
+The GitHub Actions workflow builds every push and pull request. Push a version tag to build the project and automatically publish the compiled mod JAR in a GitHub Release:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The release title and generated release notes use the pushed tag. Regular branch builds are available as workflow artifacts but do not create releases.
 
 ## License
 
