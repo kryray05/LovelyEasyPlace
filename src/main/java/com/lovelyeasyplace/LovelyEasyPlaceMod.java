@@ -55,6 +55,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     private static boolean holdActive = false;
     private static boolean disabledByServer = false;
     private static String currentServerAddress = "singleplayer";
+    private static String pendingWarningServerAddress;
     private static long lastPlacementSneakMs = 0L;
 
     @Override
@@ -93,6 +94,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
 
         // Register tick event to handle key presses
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            sendPendingServerWarning(client);
             handleToggleKey(client);
             handleHoldKey(client);
             handleConfigKey(client);
@@ -163,9 +165,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             }
 
             if (shouldWarnForServer(client)) {
-                sendServerWarning(client);
-                LovelyEasyPlaceConfig.warnedServers.add(currentServerAddress);
-                LovelyEasyPlaceConfig.save();
+                pendingWarningServerAddress = currentServerAddress;
             }
 
             refreshRuntimeState();
@@ -175,6 +175,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             resetPlacementSneak(client.player);
             disabledByServer = false;
             currentServerAddress = "singleplayer";
+            pendingWarningServerAddress = null;
             holdActive = false;
         });
     }
@@ -362,8 +363,15 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             && !LovelyEasyPlaceConfig.hasWarnedServer(currentServerAddress);
     }
 
-    private static void sendServerWarning(MinecraftClient client) {
-        if (client.player == null) {
+    private static void sendPendingServerWarning(MinecraftClient client) {
+        if (pendingWarningServerAddress == null || client.player == null) {
+            return;
+        }
+
+        // Do not carry a queued warning into a different connection.
+        if (!pendingWarningServerAddress.equals(currentServerAddress)
+            || !shouldWarnForServer(client)) {
+            pendingWarningServerAddress = null;
             return;
         }
 
@@ -377,6 +385,9 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             ).formatted(Formatting.AQUA));
 
         client.player.sendMessage(warning, false);
+        LovelyEasyPlaceConfig.warnedServers.add(pendingWarningServerAddress);
+        LovelyEasyPlaceConfig.save();
+        pendingWarningServerAddress = null;
     }
 
     private static void sendStateMessage(MinecraftClient client) {
