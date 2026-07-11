@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "lovelyeasyplace",
+  "version": "${version}",
+  "name": "LovelyEasyPlace",
+  "description": "Place blocks against chests, hoppers, and other interactive blocks without holding sneak.",
+  "authors": [
+    "LovelyEasyPlace Contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/lovelyeasyplace/lovelyeasyplace",
+    "sources": "https://github.com/lovelyeasyplace/lovelyeasyplace"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.lovelyeasyplace.LovelyEasyPlaceMod"
+    ],
+    "modmenu": [
+      "com.lovelyeasyplace.integration.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "lovelyeasyplace.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "cloth-config": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
