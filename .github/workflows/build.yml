@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -39,3 +39,12 @@ jobs:
             build/libs/lovelyeasyplace-*.jar
             !build/libs/*-sources.jar
           if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          JAR_PATH="$(find build/libs -maxdepth 1 -type f -name 'lovelyeasyplace-*.jar' ! -name '*-sources.jar' -print -quit)"
+          test -n "$JAR_PATH"
+          gh release create "$GITHUB_REF_NAME" "$JAR_PATH" --title "LovelyEasyPlace $GITHUB_REF_NAME" --generate-notes --verify-tag
