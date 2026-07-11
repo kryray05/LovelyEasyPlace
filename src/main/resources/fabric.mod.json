@@ -5,11 +5,12 @@
   "name": "LovelyEasyPlace",
   "description": "Place blocks against chests, hoppers, and other interactive blocks without holding sneak.",
   "authors": [
-    "LovelyEasyPlace Contributors"
+    "kryray05"
   ],
   "contact": {
-    "homepage": "https://github.com/lovelyeasyplace/lovelyeasyplace",
-    "sources": "https://github.com/lovelyeasyplace/lovelyeasyplace"
+    "homepage": "https://github.com/kryray05/LovelyEasyPlace",
+    "sources": "https://github.com/kryray05/LovelyEasyPlace",
+    "issues": "https://github.com/kryray05/LovelyEasyPlace/issues"
   },
   "license": "MIT",
   "environment": "client",

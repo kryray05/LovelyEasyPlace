@@ -1,14 +1,11 @@
 package com.lovelyeasyplace.config;
 
 import com.lovelyeasyplace.LovelyEasyPlaceMod;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 import java.io.*;
@@ -135,72 +132,7 @@ public class LovelyEasyPlaceConfig {
             .setParentScreen(parent)
             .setTitle(Text.translatable("text.lovelyeasyplace.config.title"));
 
-        ConfigCategory general = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.general"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-
-        general.addEntry(entryBuilder.startTextDescription(
-                Text.translatable("text.lovelyeasyplace.config.warning"))
-            .setColor(0xFFFFAA00)
-            .build());
-
-        general.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.enabled"), enabled)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> enabled = value)
-            .build());
-
-        general.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.show_hud_indicator"), showHudIndicator)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> showHudIndicator = value)
-            .build());
-
-        general.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.hold_mode"), holdMode)
-            .setDefaultValue(false)
-            .setTooltip(Text.translatable("text.lovelyeasyplace.config.hold_mode.tooltip"))
-            .setSaveConsumer(value -> holdMode = value)
-            .build());
-
-        general.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.warn_on_server_join"), warnOnServerJoin)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> warnOnServerJoin = value)
-            .build());
-
-        general.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.debug_logging"), debugLogging)
-            .setDefaultValue(false)
-            .setSaveConsumer(value -> debugLogging = value)
-            .build());
-
-        ConfigCategory behavior = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.behavior"));
-
-        behavior.addEntry(entryBuilder.startIntSlider(
-                Text.translatable("text.lovelyeasyplace.config.min_placement_interval"), minPlacementIntervalMs, 0, 1000)
-            .setDefaultValue(0)
-            .setTextGetter(value -> value == 0
-                ? Text.translatable("text.lovelyeasyplace.config.interval_disabled")
-                : Text.translatable("text.lovelyeasyplace.config.interval_ms", value))
-            .setTooltip(Text.translatable("text.lovelyeasyplace.config.min_placement_interval.tooltip"))
-            .setSaveConsumer(value -> minPlacementIntervalMs = value)
-            .build());
-
-        ConfigCategory server = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.server"));
-
-        server.addEntry(entryBuilder.startStrList(
-                Text.translatable("text.lovelyeasyplace.config.disabled_servers"), new ArrayList<>(disabledServers))
-            .setDefaultValue(new ArrayList<>())
-            .setTooltip(Text.translatable("text.lovelyeasyplace.config.disabled_servers.tooltip"))
-            .setSaveConsumer(value -> disabledServers = cleanList(value))
-            .build());
-
-        server.addEntry(entryBuilder.startStrList(
-                Text.translatable("text.lovelyeasyplace.config.warned_servers"), new ArrayList<>(warnedServers))
-            .setDefaultValue(new ArrayList<>())
-            .setTooltip(Text.translatable("text.lovelyeasyplace.config.warned_servers.tooltip"))
-            .setSaveConsumer(value -> warnedServers = new LinkedHashSet<>(cleanList(value)))
-            .build());
 
         ConfigCategory blocks = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.blocks"));
 
@@ -208,6 +140,12 @@ public class LovelyEasyPlaceConfig {
                 Text.translatable("text.lovelyeasyplace.config.place_on_chests"), placeOnChests)
             .setDefaultValue(true)
             .setSaveConsumer(value -> placeOnChests = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_trapped_chests"), placeOnTrappedChests)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnTrappedChests = value)
             .build());
 
         blocks.addEntry(entryBuilder.startBooleanToggle(
@@ -223,6 +161,18 @@ public class LovelyEasyPlaceConfig {
             .build());
 
         blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_smokers"), placeOnSmokers)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnSmokers = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_blast_furnaces"), placeOnBlastFurnaces)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnBlastFurnaces = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
                 Text.translatable("text.lovelyeasyplace.config.place_on_dispensers"), placeOnDispensers)
             .setDefaultValue(true)
             .setSaveConsumer(value -> placeOnDispensers = value)
@@ -232,12 +182,6 @@ public class LovelyEasyPlaceConfig {
                 Text.translatable("text.lovelyeasyplace.config.place_on_droppers"), placeOnDroppers)
             .setDefaultValue(true)
             .setSaveConsumer(value -> placeOnDroppers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_trapped_chests"), placeOnTrappedChests)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnTrappedChests = value)
             .build());
 
         blocks.addEntry(entryBuilder.startBooleanToggle(
@@ -252,33 +196,10 @@ public class LovelyEasyPlaceConfig {
             .setSaveConsumer(value -> placeOnShulkerBoxes = value)
             .build());
 
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_smokers"), placeOnSmokers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnSmokers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_blast_furnaces"), placeOnBlastFurnaces)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnBlastFurnaces = value)
-            .build());
-
         builder.setSavingRunnable(() -> {
             save();
             LovelyEasyPlaceMod.refreshRuntimeState();
         });
-
-        builder.setAfterInitConsumer(screen -> Screens.getButtons(screen).add(ButtonWidget.builder(
-                Text.translatable("text.lovelyeasyplace.config.reset_defaults"),
-                button -> {
-                    resetToDefaults();
-                    save();
-                    LovelyEasyPlaceMod.refreshRuntimeState();
-                    MinecraftClient.getInstance().setScreen(createConfigScreen(parent));
-                })
-            .dimensions(Math.max(6, screen.width - 126), 6, 120, 20)
-            .build()));
 
         return builder.build();
     }

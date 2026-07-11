@@ -1,20 +1,32 @@
 # LovelyEasyPlace
 
-LovelyEasyPlace is a client-side Fabric quality-of-life mod for Minecraft 1.21.11. It helps you place blocks against chests, hoppers, barrels, furnaces, and similar interactive blocks without holding sneak.
+LovelyEasyPlace is a client-side Fabric mod for Minecraft 1.21.11 that makes it easier to place blocks against containers and other interactive storage blocks. When you place a block against a supported target, the mod temporarily uses the normal vanilla sneak input so the target's interface does not open.
+
+GitHub: [kryray05/LovelyEasyPlace](https://github.com/kryray05/LovelyEasyPlace)
 
 ## Features
 
-- Place a second chest for a double chest without holding Shift
-- Place blocks against hoppers, barrels, furnaces, dispensers, droppers, and trapped chests without opening their GUI
-- Only activates when you are holding a block item, so empty-hand and tool interactions still open containers normally
-- Per-block toggles through Mod Menu and Cloth Config
-- Optional keybind to enable or disable the mod in-game
-- HUD indicator for the current active, inactive, or server-blocked state
-- Optional server blacklist to auto-disable the mod on selected multiplayer servers
-- One-time multiplayer join warning and `/lep config` client command
-- Optional hold-to-activate mode and debug logging
+- Automatically fake-sneak while placing blocks against supported containers
+- Create double chests without manually holding the sneak key
+- Activate only when the held item is a block, leaving empty-hand and tool interactions unchanged
+- Support chests, trapped chests, hoppers, furnaces, smokers, blast furnaces, dispensers, droppers, barrels, and shulker boxes
+- Enable or disable every supported block type independently
+- Search the supported-block list from the Cloth Config screen
+- Open **Cấu hình LovelyEasyPlace** from Mod Menu, the pause menu, or the `O` key
+- Toggle the entire mod with an optional keybind or `/lep toggle`
+- Use an optional hold-to-activate mode instead of the persistent toggle
+- Show an optional HUD indicator for enabled, disabled, and server-blocked states
+- Automatically disable the mod on configured multiplayer servers
+- Show a one-time warning when joining a multiplayer server
+- Configure an optional minimum interval between assisted placements
+- Enable debug logging for troubleshooting
+- Reset every setting with `/lep reset`
+- Save settings in `config/lovelyeasyplace.properties`
+- Run entirely on the client; servers do not need to install the mod
 
 ## Supported Blocks
+
+LovelyEasyPlace is intentionally limited to these blocks:
 
 - Chests
 - Trapped chests
@@ -27,40 +39,68 @@ LovelyEasyPlace is a client-side Fabric quality-of-life mod for Minecraft 1.21.1
 - Barrels
 - Shulker boxes
 
+It does not automatically activate on every interactive block.
+
+## Using the Block Selector
+
+Open **Cấu hình LovelyEasyPlace** using any of these methods:
+
+- Press `O` in game (default configuration key)
+- Click **LEP Config** in the pause menu
+- Open LovelyEasyPlace in Mod Menu and click **Configure**
+
+The menu contains only the ten supported block types. Switch a block type on or off, then click **Save & Quit** to apply and save the selection.
+
 ## How It Works
 
-When you right-click a supported block while holding a block item, LovelyEasyPlace briefly sends the normal vanilla player-input packet with sneak enabled, lets the placement interaction happen, then restores your previous input state if you were not already sneaking.
+When you right-click a supported block while holding a block item, LovelyEasyPlace briefly sends the standard player input with sneaking enabled. It performs the placement interaction and then restores your previous input state when you were not already sneaking.
 
-This is similar in concept to Tweakeroo's Fake Sneak and Omni-Hopper's placement helper idea, but this mod is focused only on convenient block placement. It does not hide itself, bypass anti-cheat, or make the server accept anything vanilla sneaking would not normally allow.
+Normal empty-hand and tool interactions are unaffected. The mod does not bypass server validation or make the server accept an action that normal vanilla sneaking would reject.
 
-LovelyEasyPlace does not add randomized packet timing or anti-cheat evasion behavior. For multiplayer servers, use the server blacklist, the join warning, and hold-to-activate mode, and only use the mod where client-side QoL helpers are allowed.
+Always check a multiplayer server's rules before using client-side quality-of-life mods.
 
 ## Installation
 
-1. Install Fabric Loader 0.19.3 or newer for Minecraft 1.21.11.
+1. Install Minecraft 1.21.11 with Fabric Loader 0.19.3 or newer.
 2. Install Fabric API for Minecraft 1.21.11.
-3. Put `lovelyeasyplace-1.0.0.jar` in your `mods` folder.
+3. Copy `lovelyeasyplace-1.0.0.jar` into the Minecraft `mods` directory.
+4. Optionally install Mod Menu for access through the installed-mod list.
 
-Cloth Config is bundled in the mod jar. Mod Menu is optional, but recommended for the config screen.
+Cloth Config is bundled inside the LovelyEasyPlace jar.
 
-## Configuration
+## Keybinds and Commands
 
-With Mod Menu installed, open LovelyEasyPlace from the mod list and click Configure.
+Keybinds are available under **Options → Controls → Key Binds → LovelyEasyPlace**:
 
-You can also edit `config/lovelyeasyplace.properties`:
+| Action | Default |
+| --- | --- |
+| Open LovelyEasyPlace Config | `O` |
+| Toggle LovelyEasyPlace | Unbound |
+| Hold LovelyEasyPlace | Unbound |
+
+Client commands:
+
+```text
+/lep toggle
+/lep reset
+```
+
+## Configuration File
+
+Settings are stored in `config/lovelyeasyplace.properties`. The block selector manages the `placeOn...` values. Advanced settings can still be edited directly in this file.
 
 ```properties
 enabled=true
 placeOnChests=true
+placeOnTrappedChests=true
 placeOnHoppers=true
 placeOnFurnaces=true
-placeOnDispensers=true
-placeOnDroppers=true
-placeOnTrappedChests=true
-placeOnBarrels=true
-placeOnShulkerBoxes=true
 placeOnSmokers=true
 placeOnBlastFurnaces=true
+placeOnDispensers=true
+placeOnDroppers=true
+placeOnBarrels=true
+placeOnShulkerBoxes=true
 showHudIndicator=true
 warnOnServerJoin=true
 holdMode=false
@@ -70,37 +110,29 @@ disabledServers=
 warnedServers=
 ```
 
-The toggle and hold keys are unbound by default. Set them in Controls -> Key Binds -> LovelyEasyPlace.
+## Requirements
 
-Client commands:
-
-```text
-/lep config
-/lep toggle
-/lep reset
-```
+- Minecraft 1.21.11
+- Fabric Loader 0.19.3 or newer
+- Fabric API 0.141.4+1.21.11 or compatible
+- Java 21 or newer
 
 ## Building
+
+Build with the Gradle wrapper when available:
 
 ```bash
 ./gradlew build
 ```
 
-If the Gradle wrapper is not present, install Gradle and run:
+Otherwise, install Gradle 9.5.0 or newer and run:
 
 ```bash
 gradle build
 ```
 
-The output jar is written to `build/libs/lovelyeasyplace-1.0.0.jar`.
-
-## Requirements
-
-- Minecraft 1.21.11
-- Fabric Loader 0.19.3 or newer
-- Fabric API 0.141.4+1.21.11 or newer for 1.21.11
-- Java 21 or newer
+The generated mod jar is written to `build/libs/lovelyeasyplace-1.0.0.jar`.
 
 ## License
 
-MIT License. See `LICENSE` for details.
+LovelyEasyPlace is maintained by [kryray05](https://github.com/kryray05) and is available under the MIT License. See [LICENSE](LICENSE) for details.

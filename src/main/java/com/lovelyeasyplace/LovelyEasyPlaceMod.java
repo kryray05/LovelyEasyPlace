@@ -17,7 +17,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
-import net.minecraft.text.ClickEvent;
 import net.minecraft.util.Formatting;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -129,11 +128,6 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
                     context.getSource().sendFeedback(Text.translatable("message.lovelyeasyplace.command.help"));
                     return 1;
                 })
-                .then(literal("config").executes(context -> {
-                    MinecraftClient client = context.getSource().getClient();
-                    client.execute(() -> client.setScreen(LovelyEasyPlaceConfig.createConfigScreen(null)));
-                    return 1;
-                }))
                 .then(literal("toggle").executes(context -> {
                     setEnabled(!LovelyEasyPlaceConfig.enabled);
                     sendStateMessage(context.getSource().getClient());
@@ -377,11 +371,10 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             .formatted(Formatting.YELLOW)
             .append(Text.translatable("message.lovelyeasyplace.server_warning").formatted(Formatting.WHITE))
             .append(" ")
-            .append(Text.translatable("message.lovelyeasyplace.click_to_configure")
-                .styled(style -> style
-                    .withColor(Formatting.AQUA)
-                    .withUnderline(true)
-                    .withClickEvent(new ClickEvent.RunCommand("/lep config"))));
+            .append(Text.translatable(
+                "message.lovelyeasyplace.press_to_configure",
+                configKey.getBoundKeyLocalizedText()
+            ).formatted(Formatting.AQUA));
 
         client.player.sendMessage(warning, false);
     }
