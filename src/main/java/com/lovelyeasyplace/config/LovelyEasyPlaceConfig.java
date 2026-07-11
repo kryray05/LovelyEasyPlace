@@ -28,6 +28,13 @@ public class LovelyEasyPlaceConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
         .getConfigDir()
         .resolve("lovelyeasyplace.properties");
+    private static final List<String> BUILT_IN_DISABLED_SERVERS = List.of(
+        "hypixel.net",
+        "mccisland.net",
+        "cubecraft.net",
+        "wynncraft.com",
+        "manacube.com"
+    );
 
     // Configuration values
     public static boolean enabled = true;
@@ -42,7 +49,7 @@ public class LovelyEasyPlaceConfig {
     public static boolean placeOnSmokers = true;
     public static boolean placeOnBlastFurnaces = true;
     public static boolean showHudIndicator = true;
-    public static boolean warnOnServerJoin = true;
+    public static final boolean warnOnServerJoin = true;
     public static boolean holdMode = false;
     public static boolean debugLogging = false;
     public static int minPlacementIntervalMs = 0;
@@ -74,7 +81,6 @@ public class LovelyEasyPlaceConfig {
             placeOnSmokers = parseBoolean(props.getProperty("placeOnSmokers", "true"));
             placeOnBlastFurnaces = parseBoolean(props.getProperty("placeOnBlastFurnaces", "true"));
             showHudIndicator = parseBoolean(props.getProperty("showHudIndicator", "true"));
-            warnOnServerJoin = parseBoolean(props.getProperty("warnOnServerJoin", "true"));
             holdMode = parseBoolean(props.getProperty("holdMode", "false"));
             debugLogging = parseBoolean(props.getProperty("debugLogging", "false"));
             minPlacementIntervalMs = parseInt(props.getProperty("minPlacementIntervalMs", "0"), 0);
@@ -108,7 +114,7 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("placeOnSmokers", String.valueOf(placeOnSmokers));
             props.setProperty("placeOnBlastFurnaces", String.valueOf(placeOnBlastFurnaces));
             props.setProperty("showHudIndicator", String.valueOf(showHudIndicator));
-            props.setProperty("warnOnServerJoin", String.valueOf(warnOnServerJoin));
+            props.setProperty("warnOnServerJoin", "true");
             props.setProperty("holdMode", String.valueOf(holdMode));
             props.setProperty("debugLogging", String.valueOf(debugLogging));
             props.setProperty("minPlacementIntervalMs", String.valueOf(minPlacementIntervalMs));
@@ -217,7 +223,6 @@ public class LovelyEasyPlaceConfig {
         placeOnSmokers = true;
         placeOnBlastFurnaces = true;
         showHudIndicator = true;
-        warnOnServerJoin = true;
         holdMode = false;
         debugLogging = false;
         minPlacementIntervalMs = 0;
@@ -231,7 +236,9 @@ public class LovelyEasyPlaceConfig {
             return false;
         }
 
-        return disabledServers.stream()
+        return BUILT_IN_DISABLED_SERVERS.stream()
+            .anyMatch(normalizedServer::contains)
+            || disabledServers.stream()
             .map(LovelyEasyPlaceConfig::normalizeServer)
             .filter(value -> !value.isEmpty())
             .anyMatch(normalizedServer::contains);
