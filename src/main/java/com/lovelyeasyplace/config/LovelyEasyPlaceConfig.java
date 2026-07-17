@@ -48,6 +48,28 @@ public class LovelyEasyPlaceConfig {
     public static boolean placeOnShulkerBoxes = true;
     public static boolean placeOnSmokers = true;
     public static boolean placeOnBlastFurnaces = true;
+    public static boolean placeOnCrafters = true;
+    public static boolean placeOnAnvils = true;
+    public static boolean placeOnCraftingTables = true;
+    public static boolean placeOnEnderChests = true;
+    public static boolean placeOnLooms = true;
+    public static boolean placeOnCartographyTables = true;
+    public static boolean placeOnGrindstones = true;
+    public static boolean placeOnStonecutters = true;
+    public static boolean placeOnSmithingTables = true;
+    public static boolean placeOnBrewingStands = true;
+    public static boolean placeOnBeacons = true;
+    public static boolean placeOnEnchantingTables = true;
+    public static boolean placeOnLecterns = true;
+    public static boolean placeOnChiseledBookshelves = true;
+    public static boolean placeOnJukeboxes = true;
+    public static boolean placeOnNoteBlocks = true;
+    public static boolean autoDetectGuiBlocks = true;
+    public static boolean placeOnDoors = true;
+    public static boolean placeOnTrapdoors = true;
+    public static boolean placeOnFenceGates = true;
+    public static boolean placeOnRepeatersComparators = true;
+    public static boolean placeOnLeversButtons = true;
     public static boolean showHudIndicator = true;
     public static final boolean warnOnServerJoin = true;
     public static boolean holdMode = false;
@@ -80,6 +102,28 @@ public class LovelyEasyPlaceConfig {
             placeOnShulkerBoxes = parseBoolean(props.getProperty("placeOnShulkerBoxes", "true"));
             placeOnSmokers = parseBoolean(props.getProperty("placeOnSmokers", "true"));
             placeOnBlastFurnaces = parseBoolean(props.getProperty("placeOnBlastFurnaces", "true"));
+            placeOnCrafters = parseBoolean(props.getProperty("placeOnCrafters", "true"));
+            placeOnAnvils = parseBoolean(props.getProperty("placeOnAnvils", "true"));
+            placeOnCraftingTables = parseBoolean(props.getProperty("placeOnCraftingTables", "true"));
+            placeOnEnderChests = parseBoolean(props.getProperty("placeOnEnderChests", "true"));
+            placeOnLooms = parseBoolean(props.getProperty("placeOnLooms", "true"));
+            placeOnCartographyTables = parseBoolean(props.getProperty("placeOnCartographyTables", "true"));
+            placeOnGrindstones = parseBoolean(props.getProperty("placeOnGrindstones", "true"));
+            placeOnStonecutters = parseBoolean(props.getProperty("placeOnStonecutters", "true"));
+            placeOnSmithingTables = parseBoolean(props.getProperty("placeOnSmithingTables", "true"));
+            placeOnBrewingStands = parseBoolean(props.getProperty("placeOnBrewingStands", "true"));
+            placeOnBeacons = parseBoolean(props.getProperty("placeOnBeacons", "true"));
+            placeOnEnchantingTables = parseBoolean(props.getProperty("placeOnEnchantingTables", "true"));
+            placeOnLecterns = parseBoolean(props.getProperty("placeOnLecterns", "true"));
+            placeOnChiseledBookshelves = parseBoolean(props.getProperty("placeOnChiseledBookshelves", "true"));
+            placeOnJukeboxes = parseBoolean(props.getProperty("placeOnJukeboxes", "true"));
+            placeOnNoteBlocks = parseBoolean(props.getProperty("placeOnNoteBlocks", "true"));
+            autoDetectGuiBlocks = parseBoolean(props.getProperty("autoDetectGuiBlocks", "true"));
+            placeOnDoors = parseBoolean(props.getProperty("placeOnDoors", "true"));
+            placeOnTrapdoors = parseBoolean(props.getProperty("placeOnTrapdoors", "true"));
+            placeOnFenceGates = parseBoolean(props.getProperty("placeOnFenceGates", "true"));
+            placeOnRepeatersComparators = parseBoolean(props.getProperty("placeOnRepeatersComparators", "true"));
+            placeOnLeversButtons = parseBoolean(props.getProperty("placeOnLeversButtons", "true"));
             showHudIndicator = parseBoolean(props.getProperty("showHudIndicator", "true"));
             holdMode = parseBoolean(props.getProperty("holdMode", "false"));
             debugLogging = parseBoolean(props.getProperty("debugLogging", "false"));
@@ -113,6 +157,28 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("placeOnShulkerBoxes", String.valueOf(placeOnShulkerBoxes));
             props.setProperty("placeOnSmokers", String.valueOf(placeOnSmokers));
             props.setProperty("placeOnBlastFurnaces", String.valueOf(placeOnBlastFurnaces));
+            props.setProperty("placeOnCrafters", String.valueOf(placeOnCrafters));
+            props.setProperty("placeOnAnvils", String.valueOf(placeOnAnvils));
+            props.setProperty("placeOnCraftingTables", String.valueOf(placeOnCraftingTables));
+            props.setProperty("placeOnEnderChests", String.valueOf(placeOnEnderChests));
+            props.setProperty("placeOnLooms", String.valueOf(placeOnLooms));
+            props.setProperty("placeOnCartographyTables", String.valueOf(placeOnCartographyTables));
+            props.setProperty("placeOnGrindstones", String.valueOf(placeOnGrindstones));
+            props.setProperty("placeOnStonecutters", String.valueOf(placeOnStonecutters));
+            props.setProperty("placeOnSmithingTables", String.valueOf(placeOnSmithingTables));
+            props.setProperty("placeOnBrewingStands", String.valueOf(placeOnBrewingStands));
+            props.setProperty("placeOnBeacons", String.valueOf(placeOnBeacons));
+            props.setProperty("placeOnEnchantingTables", String.valueOf(placeOnEnchantingTables));
+            props.setProperty("placeOnLecterns", String.valueOf(placeOnLecterns));
+            props.setProperty("placeOnChiseledBookshelves", String.valueOf(placeOnChiseledBookshelves));
+            props.setProperty("placeOnJukeboxes", String.valueOf(placeOnJukeboxes));
+            props.setProperty("placeOnNoteBlocks", String.valueOf(placeOnNoteBlocks));
+            props.setProperty("autoDetectGuiBlocks", String.valueOf(autoDetectGuiBlocks));
+            props.setProperty("placeOnDoors", String.valueOf(placeOnDoors));
+            props.setProperty("placeOnTrapdoors", String.valueOf(placeOnTrapdoors));
+            props.setProperty("placeOnFenceGates", String.valueOf(placeOnFenceGates));
+            props.setProperty("placeOnRepeatersComparators", String.valueOf(placeOnRepeatersComparators));
+            props.setProperty("placeOnLeversButtons", String.valueOf(placeOnLeversButtons));
             props.setProperty("showHudIndicator", String.valueOf(showHudIndicator));
             props.setProperty("warnOnServerJoin", "true");
             props.setProperty("holdMode", String.valueOf(holdMode));
@@ -202,6 +268,138 @@ public class LovelyEasyPlaceConfig {
             .setSaveConsumer(value -> placeOnShulkerBoxes = value)
             .build());
 
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_crafters"), placeOnCrafters)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnCrafters = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_anvils"), placeOnAnvils)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnAnvils = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_crafting_tables"), placeOnCraftingTables)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnCraftingTables = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_ender_chests"), placeOnEnderChests)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnEnderChests = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_looms"), placeOnLooms)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnLooms = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_cartography_tables"), placeOnCartographyTables)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnCartographyTables = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_grindstones"), placeOnGrindstones)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnGrindstones = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_stonecutters"), placeOnStonecutters)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnStonecutters = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_smithing_tables"), placeOnSmithingTables)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnSmithingTables = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_brewing_stands"), placeOnBrewingStands)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnBrewingStands = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_beacons"), placeOnBeacons)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnBeacons = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_enchanting_tables"), placeOnEnchantingTables)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnEnchantingTables = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_lecterns"), placeOnLecterns)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnLecterns = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_chiseled_bookshelves"), placeOnChiseledBookshelves)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnChiseledBookshelves = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_jukeboxes"), placeOnJukeboxes)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnJukeboxes = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_note_blocks"), placeOnNoteBlocks)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnNoteBlocks = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.auto_detect_gui_blocks"), autoDetectGuiBlocks)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> autoDetectGuiBlocks = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_doors"), placeOnDoors)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnDoors = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_trapdoors"), placeOnTrapdoors)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnTrapdoors = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_fence_gates"), placeOnFenceGates)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnFenceGates = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_repeaters_comparators"), placeOnRepeatersComparators)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnRepeatersComparators = value)
+            .build());
+
+        blocks.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.place_on_levers_buttons"), placeOnLeversButtons)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> placeOnLeversButtons = value)
+            .build());
+
         builder.setSavingRunnable(() -> {
             save();
             LovelyEasyPlaceMod.refreshRuntimeState();
@@ -222,6 +420,28 @@ public class LovelyEasyPlaceConfig {
         placeOnShulkerBoxes = true;
         placeOnSmokers = true;
         placeOnBlastFurnaces = true;
+        placeOnCrafters = true;
+        placeOnAnvils = true;
+        placeOnCraftingTables = true;
+        placeOnEnderChests = true;
+        placeOnLooms = true;
+        placeOnCartographyTables = true;
+        placeOnGrindstones = true;
+        placeOnStonecutters = true;
+        placeOnSmithingTables = true;
+        placeOnBrewingStands = true;
+        placeOnBeacons = true;
+        placeOnEnchantingTables = true;
+        placeOnLecterns = true;
+        placeOnChiseledBookshelves = true;
+        placeOnJukeboxes = true;
+        placeOnNoteBlocks = true;
+        autoDetectGuiBlocks = true;
+        placeOnDoors = true;
+        placeOnTrapdoors = true;
+        placeOnFenceGates = true;
+        placeOnRepeatersComparators = true;
+        placeOnLeversButtons = true;
         showHudIndicator = true;
         holdMode = false;
         debugLogging = false;
