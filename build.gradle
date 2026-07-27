@@ -30,6 +30,7 @@ dependencies {
     // Cloth Config for configuration
     modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
     include "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+    include "me.shedaniel.cloth:basic-math:0.6.1"
 
     // Mod Menu integration (optional but nice)
     modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"

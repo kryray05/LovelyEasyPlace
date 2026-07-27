@@ -1,0 +1,104 @@
+[CENTER][SIZE=7][B]LovelyEasyPlace[/B][/SIZE]
+[SIZE=4]Place blocks against containers without manually holding sneak[/SIZE]
+
+[B]Minecraft 1.21.11 • Fabric • Client-side[/B][/CENTER]
+
+[HR][/HR]
+
+[SIZE=5][B]About[/B][/SIZE]
+
+LovelyEasyPlace is a lightweight client-side Fabric mod that makes building around containers and other interactive storage blocks easier.
+
+When you right-click a supported block while holding a block item, LovelyEasyPlace briefly uses the normal vanilla sneak input. This lets you place the block instead of opening the target's interface. Your previous input state is restored immediately afterward.
+
+Empty-hand and tool interactions remain unchanged, and no server-side installation is required.
+
+[SIZE=5][B]Features[/B][/SIZE]
+
+[LIST]
+[*]Automatically sneak while placing blocks against supported containers
+[*]Create double chests without manually holding the sneak key
+[*]Activate only while holding a block item
+[*]Enable or disable each supported block type independently
+[*]Search the supported-block list from the Cloth Config screen
+[*]Open the configuration from Mod Menu, the pause menu, or the [B]O[/B] key
+[*]Toggle the mod with a keybind or [ICODE]/lep toggle[/ICODE]
+[*]Optional hold-to-activate mode
+[*]Optional HUD status indicator
+[*]Configurable minimum interval between assisted placements
+[*]Automatic disabling on configured multiplayer servers
+[*]One-time multiplayer server warning
+[*]Debug logging for troubleshooting
+[*]Reset all settings with [ICODE]/lep reset[/ICODE]
+[/LIST]
+
+[SIZE=5][B]Supported Blocks[/B][/SIZE]
+
+[LIST]
+[*]Chests
+[*]Trapped chests
+[*]Hoppers
+[*]Furnaces
+[*]Smokers
+[*]Blast furnaces
+[*]Dispensers
+[*]Droppers
+[*]Barrels
+[*]Shulker boxes
+[/LIST]
+
+The mod is intentionally limited to these blocks and does not activate on every interactive block.
+
+[SIZE=5][B]Installation[/B][/SIZE]
+
+[LIST=1]
+[*]Install Minecraft 1.21.11 with Fabric Loader 0.19.3 or newer.
+[*]Install Fabric API for Minecraft 1.21.11.
+[*]Place [ICODE]lovelyeasyplace-1.0.0.jar[/ICODE] in your Minecraft [ICODE]mods[/ICODE] folder.
+[*]Optionally install Mod Menu for configuration access from the installed-mod list.
+[/LIST]
+
+Cloth Config is bundled in the LovelyEasyPlace jar.
+
+[SIZE=5][B]Requirements[/B][/SIZE]
+
+[LIST]
+[*]Minecraft 1.21.11
+[*]Fabric Loader 0.19.3 or newer
+[*]Fabric API 0.141.4+1.21.11 or compatible
+[*]Java 21 or newer
+[/LIST]
+
+[SIZE=5][B]Configuration[/B][/SIZE]
+
+Press [B]O[/B] in game, select [B]LEP Config[/B] from the pause menu, or open LovelyEasyPlace through Mod Menu and click [B]Configure[/B].
+
+Settings are saved in:
+
+[CODE]config/lovelyeasyplace.properties[/CODE]
+
+Keybinds are available under:
+
+[CODE]Options → Controls → Key Binds → LovelyEasyPlace[/CODE]
+
+[SIZE=5][B]Multiplayer Notice[/B][/SIZE]
+
+LovelyEasyPlace uses ordinary vanilla sneaking behavior. It does not bypass server validation or force a server to accept an action that vanilla sneaking would reject.
+
+The mod is permanently disabled on Hypixel, MCC Island, CubeCraft, Wynncraft, and ManaCube. Additional servers can be disabled in the configuration file.
+
+Always check a server's rules before using client-side quality-of-life mods.
+
+[SIZE=5][B]Important[/B][/SIZE]
+
+[B]LovelyEasyPlace is a client-side Fabric mod, not a Spigot/Paper server plugin.[/B] Install it in the player's Minecraft client. Servers do not need to install anything.
+
+[SIZE=5][B]Links[/B][/SIZE]
+
+[URL='https://github.com/kryray05/LovelyEasyPlace']Source Code and Issue Tracker[/URL]
+
+[SIZE=5][B]License[/B][/SIZE]
+
+LovelyEasyPlace is maintained by kryray05 and released under the MIT License.
+
+[CENTER][B]Enjoy easier building around containers![/B][/CENTER]

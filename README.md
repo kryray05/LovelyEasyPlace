@@ -1,151 +1,92 @@
 # LovelyEasyPlace
 
-LovelyEasyPlace is a client-side Fabric mod for Minecraft 1.21.11 that makes it easier to place blocks against containers and other interactive storage blocks. When you place a block against a supported target, the mod temporarily uses the normal vanilla sneak input so the target's interface does not open.
+**LovelyEasyPlace** is a client-side Fabric mod for Minecraft 1.21.11 that enhances building workflow, schematic placement, and redstone construction with automatic fake-sneaking, Litematica integration, reverse block placement, auto-restocking, and Carpet Accurate Placement protocol support.
 
-GitHub: [kryray05/LovelyEasyPlace](https://github.com/kryray05/LovelyEasyPlace)
+---
 
-## Features
+## 🌟 Feature Overview
 
-- Automatically fake-sneak while placing blocks against supported containers
-- Create double chests without manually holding the sneak key
-- Activate only when the held item is a block, leaving empty-hand and tool interactions unchanged
-- Support chests, trapped chests, hoppers, furnaces, smokers, blast furnaces, dispensers, droppers, barrels, and shulker boxes
-- Enable or disable every supported block type independently
-- Search the supported-block list from the Cloth Config screen
-- Open **Cấu hình LovelyEasyPlace** from Mod Menu, the pause menu, or the `O` key
-- Toggle the entire mod with an optional keybind or `/lep toggle`
-- Use an optional hold-to-activate mode instead of the persistent toggle
-- Show an optional HUD indicator for enabled, disabled, and server-blocked states
-- Automatically disable the mod on configured multiplayer servers
-- Show a one-time warning when joining a multiplayer server
-- Configure an optional minimum interval between assisted placements
-- Enable debug logging for troubleshooting
-- Reset every setting with `/lep reset`
-- Save settings in `config/lovelyeasyplace.properties`
-- Run entirely on the client; servers do not need to install the mod
+### 1. EasyPlace / Container Fake-Sneak
+- Automatically fake-sneaks when placing blocks against interactive container and workstation blocks, preventing unintentional GUI popups without requiring you to hold Shift manually.
+- **Supported Blocks**: Chests, Trapped Chests, Hoppers, Furnaces, Smokers, Blast Furnaces, Dispensers, Droppers, Barrels, Shulker Boxes, Crafters, Anvils, Crafting Tables, Ender Chests, Looms, Cartography Tables, Grindstones, Stonecutters, Smithing Tables, Brewing Stands, Beacons, Enchanting Tables, Lecterns, Chiseled Bookshelves, Jukeboxes, Note Blocks, Doors, Trapdoors, Fence Gates, Repeaters, Comparators, Levers, Buttons, and auto-detected custom GUI blocks.
 
-## Supported Blocks
+### 2. Reverse Block Placement
+- Places directional blocks (Pistons, Observers, Hoppers, Stairs, Logs, etc.) facing in the **opposite** orientation relative to the player.
+- Configurable via keybinding, `/lep reverse` command, or directly inside the Config GUI panel.
 
-LovelyEasyPlace is intentionally limited to these blocks:
+### 3. Litematica Integration
+- **Precise Auto Select Item**: Detects replaceable schematic ghost targets and automatically selects the required item from hotbar or main inventory. Gated specifically to valid schematic ghost targets.
+- **Auto Rotate**: Copies block-state properties directly from the active schematic (facing, horizontal facing, hopper facing, axis, half, shape, hinge, orientation, face, attachment, rotation).
+- **Adjacent / Edge Placement**: Places a nearby ghost block by clicking against an adjacent solid block.
 
-- Chests
-- Trapped chests
-- Hoppers
-- Furnaces
-- Smokers
-- Blast furnaces
-- Dispensers
-- Droppers
-- Barrels
-- Shulker boxes
+### 4. Inventory Auto Restock
+- Automatically refills your hand from hotbar or main inventory (slots 9–35) when a held item stack runs out after placement.
 
-It does not automatically activate on every interactive block.
+### 5. Redstone Component Synchronization
+- **Match Repeater Delay**: Synchronizes repeater tick delay with the schematic target on the next tick.
+- **Match Comparator Mode**: Synchronizes comparator mode (Compare / Subtract) with the schematic state.
+- **Match Observer & Redstone States**: Preserves exact orientation for observers and redstone components according to user-configurable toggles.
 
-## Using the Block Selector
+### 6. Carpet Accurate Placement Protocol
+- Encodes block facing into interaction hit vectors compatible with Carpet Mod's server-side accurate placement protocol, ensuring accurate orientation on multiplayer servers.
 
-Open **Cấu hình LovelyEasyPlace** using any of these methods:
+### 7. Config Panel & In-Game Controls
+- In-game Config GUI powered by **Cloth Config** (Press **`O`** or access from the Pause Menu).
+- Full customization for all settings without needing commands.
 
-- Press `O` in game (default configuration key)
-- Click **LEP Config** in the pause menu
-- Open LovelyEasyPlace in Mod Menu and click **Configure**
+---
 
-The menu contains only the ten supported block types. Switch a block type on or off, then click **Save & Quit** to apply and save the selection.
+## ⌨️ Controls & Keybindings
 
-## How It Works
-
-When you right-click a supported block while holding a block item, LovelyEasyPlace briefly sends the standard player input with sneaking enabled. It performs the placement interaction and then restores your previous input state when you were not already sneaking.
-
-Normal empty-hand and tool interactions are unaffected. The mod does not bypass server validation or make the server accept an action that normal vanilla sneaking would reject.
-
-Always check a multiplayer server's rules before using client-side quality-of-life mods.
-
-## Installation
-
-1. Install Minecraft 1.21.11 with Fabric Loader 0.19.3 or newer.
-2. Install Fabric API for Minecraft 1.21.11.
-3. Copy `lovelyeasyplace-1.0.0.jar` into the Minecraft `mods` directory.
-4. Optionally install Mod Menu for access through the installed-mod list.
-
-Cloth Config is bundled inside the LovelyEasyPlace jar.
-
-## Keybinds and Commands
-
-Keybinds are available under **Options → Controls → Key Binds → LovelyEasyPlace**:
-
-| Action | Default |
+| Action | Default Key |
 | --- | --- |
-| Open LovelyEasyPlace Config | `O` |
+| Open Config Panel | `O` |
 | Toggle LovelyEasyPlace | Unbound |
-| Hold LovelyEasyPlace | Unbound |
+| Hold-to-Activate Mode | Unbound |
+| Toggle Reverse Placement | Unbound |
 
-Client commands:
+---
 
-```text
-/lep toggle
-/lep reset
-```
+## ⚙️ Configuration Panel (`O` Key)
 
-## Configuration File
+Access the configuration menu in-game by pressing **`O`** or via the **Pause Menu** button. Settings are categorized into:
 
-Settings are stored in `config/lovelyeasyplace.properties`. The block selector manages the `placeOn...` values. Advanced settings can still be edited directly in this file.
+1. **General Settings**:
+   - Enable LovelyEasyPlace (Master Toggle)
+   - Hold-to-Activate Mode
+   - Show HUD Indicator
+   - Debug Logging
+2. **Schematic Placement**:
+   - Reverse Placement
+   - Litematica: Auto Select Item
+   - Litematica: Auto Rotate
+   - Litematica: Adjacent Placement
+   - Auto Restock from Inventory
+   - Match Repeater Delay
+   - Match Comparator Mode
+   - Match Observer Facing
+   - Match Redstone Block States
+   - Carpet Accurate Placement Protocol
+3. **Supported Blocks**:
+   - Per-block interaction bypass toggles for all container and interactive block types.
 
-Multiplayer join warnings are always enabled. LovelyEasyPlace is also permanently disabled on Hypixel, MCC Island, CubeCraft, Wynncraft, and ManaCube; these built-in safety entries cannot be removed through the configuration file. `disabledServers` can still be used to add more servers.
+---
 
-```properties
-enabled=true
-placeOnChests=true
-placeOnTrappedChests=true
-placeOnHoppers=true
-placeOnFurnaces=true
-placeOnSmokers=true
-placeOnBlastFurnaces=true
-placeOnDispensers=true
-placeOnDroppers=true
-placeOnBarrels=true
-placeOnShulkerBoxes=true
-showHudIndicator=true
-warnOnServerJoin=true
-holdMode=false
-debugLogging=false
-minPlacementIntervalMs=0
-disabledServers=
-warnedServers=
-```
+## 🛠️ Building & Installation
 
-## Requirements
+### Requirements
+- Minecraft `1.21.11`
+- Fabric Loader `0.19.3+`
+- Fabric API
 
-- Minecraft 1.21.11
-- Fabric Loader 0.19.3 or newer
-- Fabric API 0.141.4+1.21.11 or compatible
-- Java 21 or newer
-
-## Building
-
-Build with the Gradle wrapper when available:
-
+### Build from Source
 ```bash
 ./gradlew build
 ```
+The compiled output JAR will be generated in `build/libs/`.
 
-Otherwise, install Gradle 9.5.0 or newer and run:
+---
 
-```bash
-gradle build
-```
+## 📄 License
 
-The generated mod jar is written to `build/libs/lovelyeasyplace-1.0.0.jar`.
-
-## Releasing
-
-The GitHub Actions workflow builds every push and pull request. Push a version tag to build the project and automatically publish the compiled mod JAR in a GitHub Release:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The release title and generated release notes use the pushed tag. Regular branch builds are available as workflow artifacts but do not create releases.
-
-## License
-
-LovelyEasyPlace is maintained by [kryray05](https://github.com/kryray05) and is available under the MIT License. See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE) for details.

@@ -41,13 +41,14 @@ public class ClientPlayerInteractionManagerMixin {
         MinecraftClient client = MinecraftClient.getInstance();
 
         // 1. Check if manually right-clicking an existing Note Block to tune it
-        if (!player.isSneaking() && LovelyEasyPlaceConfig.autoNoteBlockPitch) {
+        if (!player.isSneaking() && LovelyEasyPlaceConfig.autoNoteBlockPitch && !(player.getStackInHand(hand).getItem() instanceof BlockItem)) {
             BlockPos clickedPos = hitResult.getBlockPos();
             BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
             if (clickedState.getBlock() instanceof NoteBlock) {
-                adjustNoteBlock(client, player, hand, clickedPos, hitResult);
-                cir.setReturnValue(ActionResult.SUCCESS);
-                return;
+                if (adjustNoteBlock(client, player, hand, clickedPos, hitResult)) {
+                    cir.setReturnValue(ActionResult.SUCCESS);
+                    return;
+                }
             }
         }
 
@@ -92,6 +93,10 @@ public class ClientPlayerInteractionManagerMixin {
 
                 lovelyeasyplace$originalYaw = player.getYaw();
                 lovelyeasyplace$originalPitch = player.getPitch();
+
+                // Set client player local rotation so placement prediction uses spoofed facing (prevents prediction flicker)
+                player.setYaw(aligned[0]);
+                player.setPitch(aligned[1]);
             }
         }
     }
@@ -111,6 +116,8 @@ public class ClientPlayerInteractionManagerMixin {
                     alignedOriginal[0], alignedOriginal[1], player.isOnGround(), player.horizontalCollision
                 ));
             }
+            player.setYaw(lovelyeasyplace$originalYaw);
+            player.setPitch(lovelyeasyplace$originalPitch);
             lovelyeasyplace$originalYaw = null;
             lovelyeasyplace$originalPitch = null;
         }
@@ -118,9 +125,9 @@ public class ClientPlayerInteractionManagerMixin {
         // End sneak-faking
         LovelyEasyPlaceMod.endPlacementSneak(player);
 
-        // Auto-tune placed note block
+        // Auto-tune placed note block or redstone component
         if (cir.getReturnValue() != null && cir.getReturnValue().isAccepted()) {
-            if (LovelyEasyPlaceConfig.autoNoteBlockPitch && lovelyeasyplace$heldBefore instanceof BlockItem blockItem && blockItem.getBlock() instanceof NoteBlock) {
+            if (lovelyeasyplace$heldBefore instanceof BlockItem blockItem) {
                 BlockPos clickedPos = hitResult.getBlockPos();
                 BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
                 BlockPos placedPos = clickedState.isReplaceable() ? clickedPos : clickedPos.offset(hitResult.getSide());
@@ -132,17 +139,21 @@ public class ClientPlayerInteractionManagerMixin {
                     placedPos,
                     false
                 );
-                adjustNoteBlock(client, player, hand, placedPos, newHit);
+                if (LovelyEasyPlaceConfig.autoNoteBlockPitch && blockItem.getBlock() instanceof NoteBlock) {
+                    adjustNoteBlock(client, player, hand, placedPos, newHit);
+                } else if (LovelyEasyPlaceConfig.autoRotate && (blockItem.getBlock() instanceof RepeaterBlock || blockItem.getBlock() instanceof ComparatorBlock)) {
+                    adjustRedstoneComponent(client, player, hand, placedPos, newHit);
+                }
             }
         }
 
         lovelyeasyplace$heldBefore = null;
     }
 
-    private void adjustNoteBlock(MinecraftClient client, ClientPlayerEntity player, Hand hand, BlockPos pos, BlockHitResult hitResult) {
+    private boolean adjustNoteBlock(MinecraftClient client, ClientPlayerEntity player, Hand hand, BlockPos pos, BlockHitResult hitResult) {
         BlockState schematic = LitematicaAdapter.getSchematicState(player.getEntityWorld(), pos);
         if (schematic == null || !(schematic.getBlock() instanceof NoteBlock)) {
-            return;
+            return false;
         }
 
         BlockState current = player.getEntityWorld().getBlockState(pos);
@@ -160,11 +171,56 @@ public class ClientPlayerInteractionManagerMixin {
                     for (int i = 0; i < clicksNeeded; i++) {
                         client.interactionManager.interactBlock(player, hand, hitResult);
                     }
+                    return true;
                 } finally {
                     isAdjustingState = false;
                 }
             }
         }
+        return false;
+    }
+
+    private boolean adjustRedstoneComponent(MinecraftClient client, ClientPlayerEntity player, Hand hand, BlockPos pos, BlockHitResult hitResult) {
+        BlockState schematic = LitematicaAdapter.getSchematicState(player.getEntityWorld(), pos);
+        if (schematic == null) return false;
+
+        BlockState current = player.getEntityWorld().getBlockState(pos);
+        boolean adjusted = false;
+
+        if (schematic.getBlock() instanceof RepeaterBlock && current.getBlock() instanceof RepeaterBlock) {
+            if (schematic.contains(RepeaterBlock.DELAY) && current.contains(RepeaterBlock.DELAY)) {
+                int targetDelay = schematic.get(RepeaterBlock.DELAY);
+                int currentDelay = current.get(RepeaterBlock.DELAY);
+                int clicksNeeded = (targetDelay - currentDelay + 4) % 4;
+                if (clicksNeeded > 0) {
+                    isAdjustingState = true;
+                    try {
+                        for (int i = 0; i < clicksNeeded; i++) {
+                            client.interactionManager.interactBlock(player, hand, hitResult);
+                        }
+                        adjusted = true;
+                    } finally {
+                        isAdjustingState = false;
+                    }
+                }
+            }
+        } else if (schematic.getBlock() instanceof ComparatorBlock && current.getBlock() instanceof ComparatorBlock) {
+            if (schematic.contains(ComparatorBlock.MODE) && current.contains(ComparatorBlock.MODE)) {
+                net.minecraft.block.enums.ComparatorMode targetMode = schematic.get(ComparatorBlock.MODE);
+                net.minecraft.block.enums.ComparatorMode currentMode = current.get(ComparatorBlock.MODE);
+                if (targetMode != currentMode) {
+                    isAdjustingState = true;
+                    try {
+                        client.interactionManager.interactBlock(player, hand, hitResult);
+                        adjusted = true;
+                    } finally {
+                        isAdjustingState = false;
+                    }
+                }
+            }
+        }
+
+        return adjusted;
     }
 
     private boolean shouldStartEasyPlace(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult) {
@@ -191,10 +247,10 @@ public class ClientPlayerInteractionManagerMixin {
         if (block instanceof FurnaceBlock && LovelyEasyPlaceConfig.placeOnFurnaces) {
             return true;
         }
-        if (block instanceof DispenserBlock && LovelyEasyPlaceConfig.placeOnDispensers) {
+        if (block instanceof DropperBlock && LovelyEasyPlaceConfig.placeOnDroppers) {
             return true;
         }
-        if (block instanceof DropperBlock && LovelyEasyPlaceConfig.placeOnDroppers) {
+        if (block instanceof DispenserBlock && LovelyEasyPlaceConfig.placeOnDispensers) {
             return true;
         }
         if (block instanceof BarrelBlock && LovelyEasyPlaceConfig.placeOnBarrels) {
@@ -268,12 +324,8 @@ public class ClientPlayerInteractionManagerMixin {
         if (state.contains(Properties.HOPPER_FACING)) {
             return state.get(Properties.HOPPER_FACING);
         }
-        if (state.contains(Properties.AXIS)) {
-            return switch (state.get(Properties.AXIS)) {
-                case X -> Direction.EAST;
-                case Z -> Direction.NORTH;
-                case Y -> Direction.UP;
-            };
+        if (state.contains(Properties.ORIENTATION)) {
+            return state.get(Properties.ORIENTATION).getFacing();
         }
         return null;
     }
@@ -289,8 +341,10 @@ public class ClientPlayerInteractionManagerMixin {
         if (targetFacing == Direction.UP) {
             if (block instanceof ObserverBlock
                     || block instanceof PistonBlock
+                    || block instanceof DropperBlock
                     || block instanceof DispenserBlock
-                    || block instanceof DropperBlock) {
+                    || block instanceof BarrelBlock
+                    || block instanceof ShulkerBoxBlock) {
                 pitch = 90f;
             } else {
                 pitch = -90f;
@@ -298,19 +352,33 @@ public class ClientPlayerInteractionManagerMixin {
         } else if (targetFacing == Direction.DOWN) {
             if (block instanceof ObserverBlock
                     || block instanceof PistonBlock
+                    || block instanceof DropperBlock
                     || block instanceof DispenserBlock
-                    || block instanceof DropperBlock) {
+                    || block instanceof BarrelBlock
+                    || block instanceof ShulkerBoxBlock) {
                 pitch = -90f;
             } else {
                 pitch = 90f;
             }
         } else {
-            if (block instanceof RepeaterBlock || block instanceof ComparatorBlock) {
+            if (block instanceof RepeaterBlock
+                    || block instanceof ComparatorBlock
+                    || block instanceof StairsBlock
+                    || block instanceof DoorBlock
+                    || block instanceof BedBlock) {
                 switch (targetFacing) {
                     case NORTH -> yaw = 180f;
                     case SOUTH -> yaw = 0f;
                     case WEST -> yaw = 90f;
                     case EAST -> yaw = -90f;
+                    default -> yaw = 0f;
+                }
+            } else if (block instanceof AnvilBlock) {
+                switch (targetFacing) {
+                    case NORTH -> yaw = 90f;
+                    case EAST -> yaw = 180f;
+                    case SOUTH -> yaw = -90f;
+                    case WEST -> yaw = 0f;
                     default -> yaw = 0f;
                 }
             } else {

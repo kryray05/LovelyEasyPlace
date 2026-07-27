@@ -24,4 +24,32 @@ echo "Running Gradle build..."
 
 echo
 echo "Build complete."
-echo "JAR: build/libs/lovelyeasyplace-1.0.0.jar"
+BUILT_JAR="build/libs/lovelyeasyplace-1.0.0.jar"
+echo "JAR: $BUILT_JAR"
+
+# Automated Lunar Client installation
+LUNAR_PROFILES_DIR="/home/raymond/snap/lunar-client/common/.lunarclient/profiles/lunar"
+if [ -d "$LUNAR_PROFILES_DIR" ]; then
+    echo
+    echo "Detected Lunar Client profile directory. Installing mod..."
+    if [ -f "$BUILT_JAR" ]; then
+        # Find all fabric-* mods directories under lunar profile
+        found_any=false
+        for dir in $(find "$LUNAR_PROFILES_DIR" -type d -name "fabric-*" 2>/dev/null); do
+            echo "Installing to $dir..."
+            # Clean up old jars to prevent duplication/conflict issues
+            rm -f "$dir"/lovelyeasyplace-*.jar
+            cp "$BUILT_JAR" "$dir/"
+            echo "Successfully copied to $dir"
+            found_any=true
+        done
+        if [ "$found_any" = false ]; then
+            echo "Warning: No fabric-* folders found in Lunar profiles."
+        fi
+    else
+        echo "Error: Built JAR not found at $BUILT_JAR"
+        exit 1
+    fi
+else
+    echo "Lunar Client profiles directory not found at $LUNAR_PROFILES_DIR"
+fi

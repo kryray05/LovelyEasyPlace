@@ -67,35 +67,13 @@ public class LitematicaAdapter {
      * @return schematic BlockState if available and non-air, otherwise null.
      */
     public static BlockState getSchematicState(World world, BlockPos pos) {
-        if (!isAvailable() || pos == null || !isLitematicaRenderingEnabled()) {
+        if (!isAvailable() || pos == null) {
             return null;
         }
 
         initializeReflection();
 
-        // 1. Try to find placement at pos and check if enabled first
-        if (getPlacementManager != null) {
-            try {
-                Object mgr = getPlacementManager.invoke(null);
-                if (mgr != null) {
-                    Method placementMethod = getPlacementAt != null ? getPlacementAt : getPlacementOf;
-                    if (placementMethod != null) {
-                        Object placement = placementMethod.invoke(mgr, pos);
-                        if (placement != null) {
-                            if (!isPlacementEnabledReflectively(placement)) {
-                                return null; // placement is disabled, ignore it!
-                            }
-                            BlockState state = getSchematicStateReflectively(placement, pos);
-                            if (state != null && !state.isAir()) {
-                                return state;
-                            }
-                        }
-                    }
-                }
-            } catch (Exception ignored) {}
-        }
-
-        // 2. Try SchematicWorldHandler.getSchematicWorld() -> getBlockState(pos) (fallback)
+        // 1. Try SchematicWorldHandler.getSchematicWorld() -> getBlockState(pos) (primary Litematica world path)
         if (getSchematicWorldFromHandler != null) {
             try {
                 Object schematicWorld = getSchematicWorldFromHandler.invoke(null);
@@ -108,16 +86,30 @@ public class LitematicaAdapter {
             } catch (Exception ignored) {}
         }
 
-        // 3. Try DataManager.getSchematicPlacementManager() -> getSchematicWorld() -> getBlockState(pos) (fallback)
-        if (getPlacementManager != null && getSchematicWorldFromManager != null) {
+        // 2. Try DataManager placement manager lookup if available
+        if (getPlacementManager != null) {
             try {
                 Object mgr = getPlacementManager.invoke(null);
                 if (mgr != null) {
-                    Object schematicWorld = getSchematicWorldFromManager.invoke(mgr);
-                    if (schematicWorld != null) {
-                        BlockState state = getBlockStateReflectively(schematicWorld, pos);
-                        if (state != null && !state.isAir()) {
-                            return state;
+                    Method placementMethod = getPlacementAt != null ? getPlacementAt : getPlacementOf;
+                    if (placementMethod != null) {
+                        Object placement = placementMethod.invoke(mgr, pos);
+                        if (placement != null) {
+                            if (!isPlacementEnabledReflectively(placement)) {
+                                return null; // placement is disabled
+                            }
+                            BlockState state = getSchematicStateReflectively(placement, pos);
+                            if (state != null && !state.isAir()) {
+                                return state;
+                            }
+                        }
+                    } else if (getSchematicWorldFromManager != null) {
+                        Object schematicWorld = getSchematicWorldFromManager.invoke(mgr);
+                        if (schematicWorld != null) {
+                            BlockState state = getBlockStateReflectively(schematicWorld, pos);
+                            if (state != null && !state.isAir()) {
+                                return state;
+                            }
                         }
                     }
                 }
@@ -198,9 +190,7 @@ public class LitematicaAdapter {
     }
 
     private static void logDiscoveryFailure(String target, Exception e) {
-        if (LovelyEasyPlaceMod.LOGGER.isDebugEnabled()) {
-            LovelyEasyPlaceMod.LOGGER.debug("Could not resolve Litematica {}", target, e);
-        }
+        LovelyEasyPlaceMod.LOGGER.warn("Could not resolve Litematica integration method {}: {}", target, e.getMessage());
     }
 }
 

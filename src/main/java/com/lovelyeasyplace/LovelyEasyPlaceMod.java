@@ -35,8 +35,6 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     public static final String MOD_ID = "lovelyeasyplace";
     public static final Logger LOGGER  = LoggerFactory.getLogger(MOD_ID);
 
-    private static final String KEY_CATEGORY = "key.categories.lovelyeasyplace";
-
     private static KeyBinding toggleKey;
     private static KeyBinding holdKey;
     private static KeyBinding configKey;
@@ -49,6 +47,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     private static String  currentServerAddress = "singleplayer";
     private static String  pendingWarningServerAddress;
     private static long    lastPlacementSneakMs = 0L;
+    private static int     placementSneakWatchdogTicks = 0;
 
     @Override
     public void onInitializeClient() {
@@ -82,6 +81,16 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
             handleToggleKey(client);
             handleHoldKey(client);
             handleConfigKey(client);
+
+            // M1 Watchdog: Reset stuck sneak if interaction return was missed/errored
+            if (placementSneaking) {
+                placementSneakWatchdogTicks++;
+                if (placementSneakWatchdogTicks > 3) {
+                    resetPlacementSneak(client.player);
+                }
+            } else {
+                placementSneakWatchdogTicks = 0;
+            }
         });
 
         LOGGER.info("LovelyEasyPlace initialized");
@@ -121,6 +130,11 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
                 .then(literal("toggle").executes(ctx -> {
                     setEnabled(!LovelyEasyPlaceConfig.enabled);
                     sendStateMessage(ctx.getSource().getClient());
+                    return 1;
+                }))
+                .then(literal("config").executes(ctx -> {
+                    MinecraftClient client = ctx.getSource().getClient();
+                    client.send(() -> client.setScreen(LovelyEasyPlaceConfigScreenProvider.createScreen(client.currentScreen)));
                     return 1;
                 }))
                 .then(literal("reset").executes(ctx -> {
@@ -271,12 +285,20 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     public static String  getCurrentServerAddress() { return currentServerAddress; }
 
     private static String getServerAddress(MinecraftClient client) {
-        return (client.getCurrentServerEntry() != null && client.getCurrentServerEntry().address != null)
-            ? client.getCurrentServerEntry().address : "singleplayer";
+        if (client.getCurrentServerEntry() != null && client.getCurrentServerEntry().address != null) {
+            return client.getCurrentServerEntry().address;
+        }
+        if (client.getNetworkHandler() != null && client.getNetworkHandler().getConnection() != null) {
+            java.net.SocketAddress sa = client.getNetworkHandler().getConnection().getAddress();
+            if (sa != null) {
+                return sa.toString();
+            }
+        }
+        return "multiplayer";
     }
 
     private static boolean isMultiplayer(MinecraftClient client) {
-        return client.getCurrentServerEntry() != null && !client.isInSingleplayer();
+        return !client.isInSingleplayer();
     }
 
     private static boolean shouldWarnForServer(MinecraftClient client) {

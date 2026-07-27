@@ -214,16 +214,16 @@ public class LovelyEasyPlaceConfig {
 
     public static boolean isServerDisabled(String serverAddress) {
         String normalizedServer = normalizeServer(serverAddress);
-        if (normalizedServer.isEmpty()) {
+        if (normalizedServer.isEmpty() || "singleplayer".equals(normalizedServer)) {
             return false;
         }
-        if (BUILT_IN_DISABLED_SERVERS.stream().anyMatch(normalizedServer::contains)) {
+        if (BUILT_IN_DISABLED_SERVERS.stream().map(LovelyEasyPlaceConfig::normalizeServer).anyMatch(b -> normalizedServer.equals(b) || normalizedServer.endsWith("." + b))) {
             return true;
         }
         return disabledServers.stream()
                 .map(LovelyEasyPlaceConfig::normalizeServer)
                 .filter(value -> !value.isEmpty())
-                .anyMatch(normalizedServer::contains);
+                .anyMatch(d -> normalizedServer.equals(d) || normalizedServer.endsWith("." + d));
     }
 
     public static boolean hasWarnedServer(String serverAddress) {
@@ -262,7 +262,14 @@ public class LovelyEasyPlaceConfig {
         if (serverAddress == null) {
             return "";
         }
-        return serverAddress.trim().toLowerCase();
+        String s = serverAddress.trim().toLowerCase();
+        if (s.contains("/")) {
+            s = s.substring(s.indexOf('/') + 1);
+        }
+        if (s.contains(":")) {
+            s = s.split(":")[0];
+        }
+        return s;
     }
 
     private static void normalize() {
