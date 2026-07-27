@@ -1,6 +1,6 @@
 package com.lovelyeasyplace.integration;
 
-import com.lovelyeasyplace.config.LovelyEasyPlaceConfig;
+import com.lovelyeasyplace.config.LovelyEasyPlaceConfigScreenProvider;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
@@ -12,6 +12,6 @@ public class ModMenuIntegration implements ModMenuApi {
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return LovelyEasyPlaceConfig::createConfigScreen;
+        return LovelyEasyPlaceConfigScreenProvider::createScreen;
     }
 }

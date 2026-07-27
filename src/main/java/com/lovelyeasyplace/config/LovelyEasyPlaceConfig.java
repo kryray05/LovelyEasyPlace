@@ -1,16 +1,15 @@
 package com.lovelyeasyplace.config;
 
 import com.lovelyeasyplace.LovelyEasyPlaceMod;
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigCategory;
-import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -19,24 +18,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Configuration manager for LovelyEasyPlace.
- * Stores settings in a simple properties file.
- */
 public class LovelyEasyPlaceConfig {
+    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("lovelyeasyplace.properties");
+    private static final List<String> BUILT_IN_DISABLED_SERVERS = List.of("hypixel.net", "mccisland.net", "cubecraft.net", "wynncraft.com", "manacube.com");
 
-    private static final Path CONFIG_PATH = FabricLoader.getInstance()
-        .getConfigDir()
-        .resolve("lovelyeasyplace.properties");
-    private static final List<String> BUILT_IN_DISABLED_SERVERS = List.of(
-        "hypixel.net",
-        "mccisland.net",
-        "cubecraft.net",
-        "wynncraft.com",
-        "manacube.com"
-    );
-
-    // Configuration values
     public static boolean enabled = true;
     public static boolean placeOnChests = true;
     public static boolean placeOnHoppers = true;
@@ -64,33 +49,28 @@ public class LovelyEasyPlaceConfig {
     public static boolean placeOnChiseledBookshelves = true;
     public static boolean placeOnJukeboxes = true;
     public static boolean placeOnNoteBlocks = true;
-    public static boolean autoDetectGuiBlocks = true;
-    public static boolean placeOnDoors = true;
-    public static boolean placeOnTrapdoors = true;
-    public static boolean placeOnFenceGates = true;
-    public static boolean placeOnRepeatersComparators = true;
-    public static boolean placeOnLeversButtons = true;
     public static boolean showHudIndicator = true;
     public static final boolean warnOnServerJoin = true;
     public static boolean holdMode = false;
     public static boolean debugLogging = false;
     public static int minPlacementIntervalMs = 0;
+    
+    // Custom requested features
+    public static boolean autoRotate = true;
+    public static boolean reversePlacement = false;
+    public static boolean autoNoteBlockPitch = true;
+
     public static List<String> disabledServers = new ArrayList<>();
     public static Set<String> warnedServers = new LinkedHashSet<>();
 
-    /**
-     * Load configuration from file.
-     */
     public static void load() {
-        if (!Files.exists(CONFIG_PATH)) {
-            save(); // Create default config
+        if (!Files.exists(CONFIG_PATH, new LinkOption[0])) {
+            LovelyEasyPlaceConfig.save();
             return;
         }
-
-        try (InputStream is = new FileInputStream(CONFIG_PATH.toFile())) {
+        try (FileInputStream is = new FileInputStream(CONFIG_PATH.toFile())) {
             Properties props = new Properties();
             props.load(is);
-
             enabled = parseBoolean(props.getProperty("enabled", "true"));
             placeOnChests = parseBoolean(props.getProperty("placeOnChests", "true"));
             placeOnHoppers = parseBoolean(props.getProperty("placeOnHoppers", "true"));
@@ -118,33 +98,27 @@ public class LovelyEasyPlaceConfig {
             placeOnChiseledBookshelves = parseBoolean(props.getProperty("placeOnChiseledBookshelves", "true"));
             placeOnJukeboxes = parseBoolean(props.getProperty("placeOnJukeboxes", "true"));
             placeOnNoteBlocks = parseBoolean(props.getProperty("placeOnNoteBlocks", "true"));
-            autoDetectGuiBlocks = parseBoolean(props.getProperty("autoDetectGuiBlocks", "true"));
-            placeOnDoors = parseBoolean(props.getProperty("placeOnDoors", "true"));
-            placeOnTrapdoors = parseBoolean(props.getProperty("placeOnTrapdoors", "true"));
-            placeOnFenceGates = parseBoolean(props.getProperty("placeOnFenceGates", "true"));
-            placeOnRepeatersComparators = parseBoolean(props.getProperty("placeOnRepeatersComparators", "true"));
-            placeOnLeversButtons = parseBoolean(props.getProperty("placeOnLeversButtons", "true"));
             showHudIndicator = parseBoolean(props.getProperty("showHudIndicator", "true"));
             holdMode = parseBoolean(props.getProperty("holdMode", "false"));
             debugLogging = parseBoolean(props.getProperty("debugLogging", "false"));
             minPlacementIntervalMs = parseInt(props.getProperty("minPlacementIntervalMs", "0"), 0);
+            
+            autoRotate = parseBoolean(props.getProperty("autoRotate", "true"));
+            reversePlacement = parseBoolean(props.getProperty("reversePlacement", "false"));
+            autoNoteBlockPitch = parseBoolean(props.getProperty("autoNoteBlockPitch", "true"));
+
             disabledServers = parseList(props.getProperty("disabledServers", ""));
             warnedServers = new LinkedHashSet<>(parseList(props.getProperty("warnedServers", "")));
             normalize();
-
         } catch (IOException e) {
             LovelyEasyPlaceMod.LOGGER.error("Failed to load config", e);
         }
     }
 
-    /**
-     * Save configuration to file.
-     */
     public static void save() {
         try {
             normalize();
-            Files.createDirectories(CONFIG_PATH.getParent());
-
+            Files.createDirectories(CONFIG_PATH.getParent(), new FileAttribute[0]);
             Properties props = new Properties();
             props.setProperty("enabled", String.valueOf(enabled));
             props.setProperty("placeOnChests", String.valueOf(placeOnChests));
@@ -173,239 +147,28 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("placeOnChiseledBookshelves", String.valueOf(placeOnChiseledBookshelves));
             props.setProperty("placeOnJukeboxes", String.valueOf(placeOnJukeboxes));
             props.setProperty("placeOnNoteBlocks", String.valueOf(placeOnNoteBlocks));
-            props.setProperty("autoDetectGuiBlocks", String.valueOf(autoDetectGuiBlocks));
-            props.setProperty("placeOnDoors", String.valueOf(placeOnDoors));
-            props.setProperty("placeOnTrapdoors", String.valueOf(placeOnTrapdoors));
-            props.setProperty("placeOnFenceGates", String.valueOf(placeOnFenceGates));
-            props.setProperty("placeOnRepeatersComparators", String.valueOf(placeOnRepeatersComparators));
-            props.setProperty("placeOnLeversButtons", String.valueOf(placeOnLeversButtons));
             props.setProperty("showHudIndicator", String.valueOf(showHudIndicator));
             props.setProperty("warnOnServerJoin", "true");
             props.setProperty("holdMode", String.valueOf(holdMode));
             props.setProperty("debugLogging", String.valueOf(debugLogging));
             props.setProperty("minPlacementIntervalMs", String.valueOf(minPlacementIntervalMs));
+            
+            props.setProperty("autoRotate", String.valueOf(autoRotate));
+            props.setProperty("reversePlacement", String.valueOf(reversePlacement));
+            props.setProperty("autoNoteBlockPitch", String.valueOf(autoNoteBlockPitch));
+
             props.setProperty("disabledServers", joinList(disabledServers));
             props.setProperty("warnedServers", joinList(warnedServers));
-
-            try (OutputStream os = new FileOutputStream(CONFIG_PATH.toFile())) {
+            try (FileOutputStream os = new FileOutputStream(CONFIG_PATH.toFile())) {
                 props.store(os, "LovelyEasyPlace Configuration");
             }
-
         } catch (IOException e) {
             LovelyEasyPlaceMod.LOGGER.error("Failed to save config", e);
         }
     }
 
-    /**
-     * Create the config screen for Mod Menu integration.
-     */
     public static Screen createConfigScreen(Screen parent) {
-        ConfigBuilder builder = ConfigBuilder.create()
-            .setParentScreen(parent)
-            .setTitle(Text.translatable("text.lovelyeasyplace.config.title"));
-
-        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-
-        ConfigCategory blocks = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.blocks"));
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_chests"), placeOnChests)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnChests = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_trapped_chests"), placeOnTrappedChests)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnTrappedChests = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_hoppers"), placeOnHoppers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnHoppers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_furnaces"), placeOnFurnaces)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnFurnaces = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_smokers"), placeOnSmokers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnSmokers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_blast_furnaces"), placeOnBlastFurnaces)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnBlastFurnaces = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_dispensers"), placeOnDispensers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnDispensers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_droppers"), placeOnDroppers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnDroppers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_barrels"), placeOnBarrels)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnBarrels = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_shulker_boxes"), placeOnShulkerBoxes)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnShulkerBoxes = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_crafters"), placeOnCrafters)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnCrafters = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_anvils"), placeOnAnvils)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnAnvils = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_crafting_tables"), placeOnCraftingTables)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnCraftingTables = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_ender_chests"), placeOnEnderChests)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnEnderChests = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_looms"), placeOnLooms)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnLooms = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_cartography_tables"), placeOnCartographyTables)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnCartographyTables = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_grindstones"), placeOnGrindstones)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnGrindstones = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_stonecutters"), placeOnStonecutters)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnStonecutters = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_smithing_tables"), placeOnSmithingTables)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnSmithingTables = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_brewing_stands"), placeOnBrewingStands)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnBrewingStands = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_beacons"), placeOnBeacons)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnBeacons = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_enchanting_tables"), placeOnEnchantingTables)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnEnchantingTables = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_lecterns"), placeOnLecterns)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnLecterns = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_chiseled_bookshelves"), placeOnChiseledBookshelves)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnChiseledBookshelves = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_jukeboxes"), placeOnJukeboxes)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnJukeboxes = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_note_blocks"), placeOnNoteBlocks)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnNoteBlocks = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.auto_detect_gui_blocks"), autoDetectGuiBlocks)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> autoDetectGuiBlocks = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_doors"), placeOnDoors)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnDoors = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_trapdoors"), placeOnTrapdoors)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnTrapdoors = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_fence_gates"), placeOnFenceGates)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnFenceGates = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_repeaters_comparators"), placeOnRepeatersComparators)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnRepeatersComparators = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_levers_buttons"), placeOnLeversButtons)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> placeOnLeversButtons = value)
-            .build());
-
-        builder.setSavingRunnable(() -> {
-            save();
-            LovelyEasyPlaceMod.refreshRuntimeState();
-        });
-
-        return builder.build();
+        return LovelyEasyPlaceConfigScreenProvider.createScreen(parent);
     }
 
     public static void resetToDefaults() {
@@ -436,16 +199,15 @@ public class LovelyEasyPlaceConfig {
         placeOnChiseledBookshelves = true;
         placeOnJukeboxes = true;
         placeOnNoteBlocks = true;
-        autoDetectGuiBlocks = true;
-        placeOnDoors = true;
-        placeOnTrapdoors = true;
-        placeOnFenceGates = true;
-        placeOnRepeatersComparators = true;
-        placeOnLeversButtons = true;
         showHudIndicator = true;
         holdMode = false;
         debugLogging = false;
         minPlacementIntervalMs = 0;
+        
+        autoRotate = true;
+        reversePlacement = false;
+        autoNoteBlockPitch = true;
+
         disabledServers = new ArrayList<>();
         warnedServers = new LinkedHashSet<>();
     }
@@ -455,20 +217,18 @@ public class LovelyEasyPlaceConfig {
         if (normalizedServer.isEmpty()) {
             return false;
         }
-
-        return BUILT_IN_DISABLED_SERVERS.stream()
-            .anyMatch(normalizedServer::contains)
-            || disabledServers.stream()
-            .map(LovelyEasyPlaceConfig::normalizeServer)
-            .filter(value -> !value.isEmpty())
-            .anyMatch(normalizedServer::contains);
+        if (BUILT_IN_DISABLED_SERVERS.stream().anyMatch(normalizedServer::contains)) {
+            return true;
+        }
+        return disabledServers.stream()
+                .map(LovelyEasyPlaceConfig::normalizeServer)
+                .filter(value -> !value.isEmpty())
+                .anyMatch(normalizedServer::contains);
     }
 
     public static boolean hasWarnedServer(String serverAddress) {
         String normalizedServer = normalizeServer(serverAddress);
-        return warnedServers.stream()
-            .map(LovelyEasyPlaceConfig::normalizeServer)
-            .anyMatch(normalizedServer::equals);
+        return warnedServers.stream().map(LovelyEasyPlaceConfig::normalizeServer).anyMatch(normalizedServer::equals);
     }
 
     private static boolean parseBoolean(String value) {
@@ -491,11 +251,7 @@ public class LovelyEasyPlaceConfig {
     }
 
     private static List<String> cleanList(Collection<String> values) {
-        return values.stream()
-            .map(String::trim)
-            .filter(value -> !value.isEmpty())
-            .distinct()
-            .collect(Collectors.toCollection(ArrayList::new));
+        return values.stream().map(String::trim).filter(value -> !value.isEmpty()).distinct().collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static String joinList(Collection<String> values) {
