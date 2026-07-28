@@ -222,6 +222,12 @@ public class ClothConfigScreenCreator {
             .setSaveConsumer(value -> LovelyEasyPlaceConfig.autoNoteBlockPitch = value)
             .build());
 
+        placement.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.match_redstone_states"), LovelyEasyPlaceConfig.matchRedstoneStates)
+            .setDefaultValue(true)
+            .setSaveConsumer(value -> LovelyEasyPlaceConfig.matchRedstoneStates = value)
+            .build());
+
         builder.setSavingRunnable(() -> {
             LovelyEasyPlaceConfig.save();
             LovelyEasyPlaceMod.refreshRuntimeState();

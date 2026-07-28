@@ -45,9 +45,25 @@ Empty-hand and tool interactions remain unchanged, and no server-side installati
 [*]Droppers
 [*]Barrels
 [*]Shulker boxes
+[*]Crafters
+[*]Anvils
+[*]Crafting tables
+[*]Ender chests
+[*]Looms
+[*]Cartography tables
+[*]Grindstones
+[*]Stonecutters
+[*]Smithing tables
+[*]Brewing stands
+[*]Beacons
+[*]Enchanting tables
+[*]Lecterns
+[*]Chiseled bookshelves
+[*]Jukeboxes
+[*]Note blocks
 [/LIST]
 
-The mod is intentionally limited to these blocks and does not activate on every interactive block.
+The mod features per-block toggles for these 25 supported interactive containers and workstations.
 
 [SIZE=5][B]Installation[/B][/SIZE]
 

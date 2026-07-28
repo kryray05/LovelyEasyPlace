@@ -141,7 +141,7 @@ public class ClientPlayerInteractionManagerMixin {
                 );
                 if (LovelyEasyPlaceConfig.autoNoteBlockPitch && blockItem.getBlock() instanceof NoteBlock) {
                     adjustNoteBlock(client, player, hand, placedPos, newHit);
-                } else if (LovelyEasyPlaceConfig.autoRotate && (blockItem.getBlock() instanceof RepeaterBlock || blockItem.getBlock() instanceof ComparatorBlock)) {
+                } else if (LovelyEasyPlaceConfig.matchRedstoneStates && (blockItem.getBlock() instanceof RepeaterBlock || blockItem.getBlock() instanceof ComparatorBlock)) {
                     adjustRedstoneComponent(client, player, hand, placedPos, newHit);
                 }
             }
@@ -176,6 +176,7 @@ public class ClientPlayerInteractionManagerMixin {
                     isAdjustingState = false;
                 }
             }
+            return true;
         }
         return false;
     }
@@ -344,7 +345,7 @@ public class ClientPlayerInteractionManagerMixin {
                     || block instanceof DropperBlock
                     || block instanceof DispenserBlock
                     || block instanceof BarrelBlock
-                    || block instanceof ShulkerBoxBlock) {
+                    || block instanceof CrafterBlock) {
                 pitch = 90f;
             } else {
                 pitch = -90f;
@@ -355,7 +356,7 @@ public class ClientPlayerInteractionManagerMixin {
                     || block instanceof DropperBlock
                     || block instanceof DispenserBlock
                     || block instanceof BarrelBlock
-                    || block instanceof ShulkerBoxBlock) {
+                    || block instanceof CrafterBlock) {
                 pitch = -90f;
             } else {
                 pitch = 90f;

@@ -1,6 +1,6 @@
 # LovelyEasyPlace
 
-**LovelyEasyPlace** is a client-side Fabric mod for Minecraft 1.21.11 that enhances building workflow, schematic placement, and redstone construction with automatic fake-sneaking, Litematica integration, reverse block placement, auto-restocking, and Carpet Accurate Placement protocol support.
+**LovelyEasyPlace** is a client-side Fabric mod for Minecraft 1.21.11 that enhances building workflow, schematic placement, and redstone construction with automatic fake-sneaking, Litematica rotation spoofing, reverse block placement, and state matching.
 
 ---
 
@@ -8,31 +8,27 @@
 
 ### 1. EasyPlace / Container Fake-Sneak
 - Automatically fake-sneaks when placing blocks against interactive container and workstation blocks, preventing unintentional GUI popups without requiring you to hold Shift manually.
-- **Supported Blocks**: Chests, Trapped Chests, Hoppers, Furnaces, Smokers, Blast Furnaces, Dispensers, Droppers, Barrels, Shulker Boxes, Crafters, Anvils, Crafting Tables, Ender Chests, Looms, Cartography Tables, Grindstones, Stonecutters, Smithing Tables, Brewing Stands, Beacons, Enchanting Tables, Lecterns, Chiseled Bookshelves, Jukeboxes, Note Blocks, Doors, Trapdoors, Fence Gates, Repeaters, Comparators, Levers, Buttons, and auto-detected custom GUI blocks.
+- **25 Supported Blocks**: Chests, Trapped Chests, Hoppers, Furnaces, Smokers, Blast Furnaces, Dispensers, Droppers, Barrels, Shulker Boxes, Crafters, Anvils, Crafting Tables, Ender Chests, Looms, Cartography Tables, Grindstones, Stonecutters, Smithing Tables, Brewing Stands, Beacons, Enchanting Tables, Lecterns, Chiseled Bookshelves, Jukeboxes, Note Blocks.
 
-### 2. Reverse Block Placement
-- Places directional blocks (Pistons, Observers, Hoppers, Stairs, Logs, etc.) facing in the **opposite** orientation relative to the player.
-- Configurable via keybinding, `/lep reverse` command, or directly inside the Config GUI panel.
+### 2. Litematica Auto-Rotate
+- Copies block facing and orientation directly from active Litematica schematic targets using client rotation spoofing. Supports horizontal and vertical block placement including Observers, Pistons, Crafters, Dispensers, Droppers, Barrels, Repeaters, Comparators, Stairs, Doors, Anvils, and Beds.
 
-### 3. Litematica Integration
-- **Precise Auto Select Item**: Detects replaceable schematic ghost targets and automatically selects the required item from hotbar or main inventory. Gated specifically to valid schematic ghost targets.
-- **Auto Rotate**: Copies block-state properties directly from the active schematic (facing, horizontal facing, hopper facing, axis, half, shape, hinge, orientation, face, attachment, rotation).
-- **Adjacent / Edge Placement**: Places a nearby ghost block by clicking against an adjacent solid block.
+### 3. Reverse Block Placement
+- Places directional blocks facing in the **opposite** orientation relative to the player when no schematic target is present.
 
-### 4. Inventory Auto Restock
-- Automatically refills your hand from hotbar or main inventory (slots 9–35) when a held item stack runs out after placement.
+### 4. Redstone & Note Block State Synchronization
+- **Match Redstone States**: Automatically synchronizes Repeater delay and Comparator mode with the schematic state upon placement.
+- **Match Note Block Pitch**: Automatically tunes placed note blocks to match the target schematic note pitch, absorbing extra right-clicks to prevent detuning.
 
-### 5. Redstone Component Synchronization
-- **Match Repeater Delay**: Synchronizes repeater tick delay with the schematic target on the next tick.
-- **Match Comparator Mode**: Synchronizes comparator mode (Compare / Subtract) with the schematic state.
-- **Match Observer & Redstone States**: Preserves exact orientation for observers and redstone components according to user-configurable toggles.
+### 5. Config Panel & In-Game Controls
+- In-game Config GUI powered by **Cloth Config** (Press **`O`** or access from the Pause Menu) with an automatic Lite Fallback GUI.
 
-### 6. Carpet Accurate Placement Protocol
-- Encodes block facing into interaction hit vectors compatible with Carpet Mod's server-side accurate placement protocol, ensuring accurate orientation on multiplayer servers.
+---
 
-### 7. Config Panel & In-Game Controls
-- In-game Config GUI powered by **Cloth Config** (Press **`O`** or access from the Pause Menu).
-- Full customization for all settings without needing commands.
+## 🗺️ Planned Roadmap Features
+- **Carpet Accurate Placement Protocol Support**
+- **Inventory Auto-Restock**
+- **Schematic Auto Item Selection & Edge Placement**
 
 ---
 
@@ -43,7 +39,6 @@
 | Open Config Panel | `O` |
 | Toggle LovelyEasyPlace | Unbound |
 | Hold-to-Activate Mode | Unbound |
-| Toggle Reverse Placement | Unbound |
 
 ---
 
@@ -56,19 +51,13 @@ Access the configuration menu in-game by pressing **`O`** or via the **Pause Men
    - Hold-to-Activate Mode
    - Show HUD Indicator
    - Debug Logging
-2. **Schematic Placement**:
-   - Reverse Placement
-   - Litematica: Auto Select Item
+2. **Schematic & Placement Helpers**:
    - Litematica: Auto Rotate
-   - Litematica: Adjacent Placement
-   - Auto Restock from Inventory
-   - Match Repeater Delay
-   - Match Comparator Mode
-   - Match Observer Facing
-   - Match Redstone Block States
-   - Carpet Accurate Placement Protocol
-3. **Supported Blocks**:
-   - Per-block interaction bypass toggles for all container and interactive block types.
+   - Reverse Placement
+   - Match Note Block Pitch
+   - Match Redstone States
+3. **Supported Interactive Blocks**:
+   - Individual toggles for all 25 container and workstation block types.
 
 ---
 

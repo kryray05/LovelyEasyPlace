@@ -127,5 +127,6 @@
   "text.lovelyeasyplace.config.auto_noteblock_pitch": "Khớp nốt nhạc Note Block",
   "text.lovelyeasyplace.config.auto_noteblock_pitch.tooltip": "Tự động chỉnh cao độ nốt nhạc Note Block cho khớp với schematic.",
   "text.lovelyeasyplace.config.carpet_accurate_placement": "Giao thức Carpet Accurate Placement",
-  "text.lovelyeasyplace.config.carpet_accurate_placement.tooltip": "Mã hóa hướng block vào vector tương tác cho máy chủ hỗ trợ Carpet protocol."
+  "text.lovelyeasyplace.config.carpet_accurate_placement.tooltip": "Mã hóa hướng block vào vector tương tác cho máy chủ hỗ trợ Carpet protocol.",
+  "text.lovelyeasyplace.config.match_redstone_states": "Đồng bộ trạng thái Redstone"
 }

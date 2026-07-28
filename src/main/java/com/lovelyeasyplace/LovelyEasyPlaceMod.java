@@ -290,6 +290,10 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         }
         if (client.getNetworkHandler() != null && client.getNetworkHandler().getConnection() != null) {
             java.net.SocketAddress sa = client.getNetworkHandler().getConnection().getAddress();
+            if (sa instanceof java.net.InetSocketAddress isa) {
+                String host = isa.getHostString();
+                if (host != null && !host.isBlank()) return host;
+            }
             if (sa != null) {
                 return sa.toString();
             }

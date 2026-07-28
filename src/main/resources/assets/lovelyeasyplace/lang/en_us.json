@@ -58,5 +58,6 @@
   "text.lovelyeasyplace.config.placement": "Schematic & Placement Helpers",
   "text.lovelyeasyplace.config.auto_rotate": "Litematica: Auto Rotate",
   "text.lovelyeasyplace.config.reverse_placement": "Reverse Placement",
-  "text.lovelyeasyplace.config.auto_noteblock_pitch": "Match Note Block Pitch"
+  "text.lovelyeasyplace.config.auto_noteblock_pitch": "Match Note Block Pitch",
+  "text.lovelyeasyplace.config.match_redstone_states": "Match Redstone States"
 }

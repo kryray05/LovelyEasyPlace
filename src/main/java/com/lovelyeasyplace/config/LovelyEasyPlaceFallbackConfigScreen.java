@@ -82,6 +82,15 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
             }
         ).dimensions(startX2, startY + spacing * 2, btnWidth, btnHeight).build());
 
+        // 4. Match Redstone States Toggle
+        this.addDrawableChild(ButtonWidget.builder(
+            getMatchRedstoneStatesText(),
+            btn -> {
+                LovelyEasyPlaceConfig.matchRedstoneStates = !LovelyEasyPlaceConfig.matchRedstoneStates;
+                btn.setMessage(getMatchRedstoneStatesText());
+            }
+        ).dimensions(startX2, startY + spacing * 3, btnWidth, btnHeight).build());
+
         // Bottom Control Buttons
         int bottomY = startY + spacing * 4 + 10;
         this.addDrawableChild(ButtonWidget.builder(
@@ -118,6 +127,10 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
 
     private Text getNoteBlockPitchText() {
         return Text.literal("Match Note Block Pitch: " + (LovelyEasyPlaceConfig.autoNoteBlockPitch ? "ON" : "OFF"));
+    }
+
+    private Text getMatchRedstoneStatesText() {
+        return Text.literal("Match Redstone States: " + (LovelyEasyPlaceConfig.matchRedstoneStates ? "ON" : "OFF"));
     }
 
     @Override
