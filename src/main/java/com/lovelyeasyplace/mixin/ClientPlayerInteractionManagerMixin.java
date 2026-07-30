@@ -82,7 +82,7 @@ public class ClientPlayerInteractionManagerMixin {
             }
 
             if (targetFacing != null) {
-                float[] angles = getRequiredYawAndPitch(targetFacing, blockItem.getBlock());
+                float[] angles = getRequiredYawAndPitch(targetFacing, blockItem.getBlock(), player);
                 float[] aligned = alignToGCD(client, angles[0], angles[1]);
 
                 if (player.networkHandler != null) {
@@ -152,9 +152,7 @@ public class ClientPlayerInteractionManagerMixin {
 
     private boolean adjustNoteBlock(MinecraftClient client, ClientPlayerEntity player, Hand hand, BlockPos pos, BlockHitResult hitResult) {
         BlockState schematic = LitematicaAdapter.getSchematicState(player.getEntityWorld(), pos);
-        if (schematic == null || !(schematic.getBlock() instanceof NoteBlock)) {
-            return false;
-        }
+        if (schematic == null || !(schematic.getBlock() instanceof NoteBlock)) return false;
 
         BlockState current = player.getEntityWorld().getBlockState(pos);
         int currentNote = 0;
@@ -166,15 +164,20 @@ public class ClientPlayerInteractionManagerMixin {
             int targetNote = schematic.get(NoteBlock.NOTE);
             int clicksNeeded = (targetNote - currentNote + 25) % 25;
             if (clicksNeeded > 0) {
-                isAdjustingState = true;
-                try {
-                    for (int i = 0; i < clicksNeeded; i++) {
-                        client.interactionManager.interactBlock(player, hand, hitResult);
-                    }
-                    return true;
-                } finally {
-                    isAdjustingState = false;
+                // Instead of a direct loop, queue the clicks one tick at a time
+                for (int i = 0; i < clicksNeeded; i++) {
+                    LovelyEasyPlaceMod.clickQueue.add(() -> {
+                        if (LovelyEasyPlaceMod.isEnabled() && client.player != null && client.interactionManager != null) {
+                            isAdjustingState = true;
+                            try {
+                                client.interactionManager.interactBlock(client.player, hand, hitResult);
+                            } finally {
+                                isAdjustingState = false;
+                            }
+                        }
+                    });
                 }
+                return true;
             }
             return true;
         }
@@ -194,15 +197,20 @@ public class ClientPlayerInteractionManagerMixin {
                 int currentDelay = current.get(RepeaterBlock.DELAY);
                 int clicksNeeded = (targetDelay - currentDelay + 4) % 4;
                 if (clicksNeeded > 0) {
-                    isAdjustingState = true;
-                    try {
-                        for (int i = 0; i < clicksNeeded; i++) {
-                            client.interactionManager.interactBlock(player, hand, hitResult);
-                        }
-                        adjusted = true;
-                    } finally {
-                        isAdjustingState = false;
+                    for (int i = 0; i < clicksNeeded; i++) {
+                        // Queue repeater clicks
+                        LovelyEasyPlaceMod.clickQueue.add(() -> {
+                            if (LovelyEasyPlaceMod.isEnabled() && client.player != null && client.interactionManager != null) {
+                                isAdjustingState = true;
+                                try {
+                                    client.interactionManager.interactBlock(client.player, hand, hitResult);
+                                } finally {
+                                    isAdjustingState = false;
+                                }
+                            }
+                        });
                     }
+                    adjusted = true;
                 }
             }
         } else if (schematic.getBlock() instanceof ComparatorBlock && current.getBlock() instanceof ComparatorBlock) {
@@ -210,17 +218,20 @@ public class ClientPlayerInteractionManagerMixin {
                 net.minecraft.block.enums.ComparatorMode targetMode = schematic.get(ComparatorBlock.MODE);
                 net.minecraft.block.enums.ComparatorMode currentMode = current.get(ComparatorBlock.MODE);
                 if (targetMode != currentMode) {
-                    isAdjustingState = true;
-                    try {
-                        client.interactionManager.interactBlock(player, hand, hitResult);
-                        adjusted = true;
-                    } finally {
-                        isAdjustingState = false;
-                    }
+                    LovelyEasyPlaceMod.clickQueue.add(() -> {
+                        if (LovelyEasyPlaceMod.isEnabled() && client.player != null && client.interactionManager != null) {
+                            isAdjustingState = true;
+                            try {
+                                client.interactionManager.interactBlock(client.player, hand, hitResult);
+                            } finally {
+                                isAdjustingState = false;
+                            }
+                        }
+                    });
+                    adjusted = true;
                 }
             }
         }
-
         return adjusted;
     }
 
@@ -246,9 +257,6 @@ public class ClientPlayerInteractionManagerMixin {
             return true;
         }
         if (block instanceof FurnaceBlock && LovelyEasyPlaceConfig.placeOnFurnaces) {
-            return true;
-        }
-        if (block instanceof DropperBlock && LovelyEasyPlaceConfig.placeOnDroppers) {
             return true;
         }
         if (block instanceof DispenserBlock && LovelyEasyPlaceConfig.placeOnDispensers) {
@@ -331,18 +339,18 @@ public class ClientPlayerInteractionManagerMixin {
         return null;
     }
 
-    private static float[] getRequiredYawAndPitch(Direction targetFacing, Block block) {
+    private static float[] getRequiredYawAndPitch(Direction targetFacing, Block block, ClientPlayerEntity player) {
         if (targetFacing == null) {
-            return new float[]{0f, 0f};
+            return new float[]{player.getYaw(), player.getPitch()};
         }
 
-        float yaw = 0f;
-        float pitch = 0f;
+        float yaw = player.getYaw();
+        float currentPitch = player.getPitch();
+        float pitch = net.minecraft.util.math.MathHelper.clamp(currentPitch, -45.0f, 45.0f);
 
         if (targetFacing == Direction.UP) {
             if (block instanceof ObserverBlock
                     || block instanceof PistonBlock
-                    || block instanceof DropperBlock
                     || block instanceof DispenserBlock
                     || block instanceof BarrelBlock
                     || block instanceof CrafterBlock) {
@@ -353,7 +361,6 @@ public class ClientPlayerInteractionManagerMixin {
         } else if (targetFacing == Direction.DOWN) {
             if (block instanceof ObserverBlock
                     || block instanceof PistonBlock
-                    || block instanceof DropperBlock
                     || block instanceof DispenserBlock
                     || block instanceof BarrelBlock
                     || block instanceof CrafterBlock) {

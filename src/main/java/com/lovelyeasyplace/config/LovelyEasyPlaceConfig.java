@@ -27,7 +27,6 @@ public class LovelyEasyPlaceConfig {
     public static boolean placeOnHoppers = true;
     public static boolean placeOnFurnaces = true;
     public static boolean placeOnDispensers = true;
-    public static boolean placeOnDroppers = true;
     public static boolean placeOnTrappedChests = true;
     public static boolean placeOnBarrels = true;
     public static boolean placeOnShulkerBoxes = true;
@@ -53,6 +52,7 @@ public class LovelyEasyPlaceConfig {
     public static final boolean warnOnServerJoin = true;
     public static boolean holdMode = false;
     public static boolean debugLogging = false;
+    public static boolean allowMultiplayer = false;
     public static int minPlacementIntervalMs = 0;
     
     // Custom requested features
@@ -77,7 +77,6 @@ public class LovelyEasyPlaceConfig {
             placeOnHoppers = parseBoolean(props.getProperty("placeOnHoppers", "true"));
             placeOnFurnaces = parseBoolean(props.getProperty("placeOnFurnaces", "true"));
             placeOnDispensers = parseBoolean(props.getProperty("placeOnDispensers", "true"));
-            placeOnDroppers = parseBoolean(props.getProperty("placeOnDroppers", "true"));
             placeOnTrappedChests = parseBoolean(props.getProperty("placeOnTrappedChests", "true"));
             placeOnBarrels = parseBoolean(props.getProperty("placeOnBarrels", "true"));
             placeOnShulkerBoxes = parseBoolean(props.getProperty("placeOnShulkerBoxes", "true"));
@@ -102,6 +101,7 @@ public class LovelyEasyPlaceConfig {
             showHudIndicator = parseBoolean(props.getProperty("showHudIndicator", "true"));
             holdMode = parseBoolean(props.getProperty("holdMode", "false"));
             debugLogging = parseBoolean(props.getProperty("debugLogging", "false"));
+            allowMultiplayer = parseBoolean(props.getProperty("allowMultiplayer", "false"));
             minPlacementIntervalMs = parseInt(props.getProperty("minPlacementIntervalMs", "0"), 0);
             
             autoRotate = parseBoolean(props.getProperty("autoRotate", "true"));
@@ -127,7 +127,6 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("placeOnHoppers", String.valueOf(placeOnHoppers));
             props.setProperty("placeOnFurnaces", String.valueOf(placeOnFurnaces));
             props.setProperty("placeOnDispensers", String.valueOf(placeOnDispensers));
-            props.setProperty("placeOnDroppers", String.valueOf(placeOnDroppers));
             props.setProperty("placeOnTrappedChests", String.valueOf(placeOnTrappedChests));
             props.setProperty("placeOnBarrels", String.valueOf(placeOnBarrels));
             props.setProperty("placeOnShulkerBoxes", String.valueOf(placeOnShulkerBoxes));
@@ -153,6 +152,7 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("warnOnServerJoin", "true");
             props.setProperty("holdMode", String.valueOf(holdMode));
             props.setProperty("debugLogging", String.valueOf(debugLogging));
+            props.setProperty("allowMultiplayer", String.valueOf(allowMultiplayer));
             props.setProperty("minPlacementIntervalMs", String.valueOf(minPlacementIntervalMs));
             
             props.setProperty("autoRotate", String.valueOf(autoRotate));
@@ -180,7 +180,6 @@ public class LovelyEasyPlaceConfig {
         placeOnHoppers = true;
         placeOnFurnaces = true;
         placeOnDispensers = true;
-        placeOnDroppers = true;
         placeOnTrappedChests = true;
         placeOnBarrels = true;
         placeOnShulkerBoxes = true;
@@ -205,6 +204,7 @@ public class LovelyEasyPlaceConfig {
         showHudIndicator = true;
         holdMode = false;
         debugLogging = false;
+        allowMultiplayer = false;
         minPlacementIntervalMs = 0;
         
         autoRotate = true;

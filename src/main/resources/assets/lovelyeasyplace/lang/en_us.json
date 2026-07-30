@@ -26,6 +26,8 @@
   "text.lovelyeasyplace.config.hold_mode.tooltip": "Only activate placement features while holding the assigned key.",
   "text.lovelyeasyplace.config.show_hud": "Show HUD Indicator",
   "text.lovelyeasyplace.config.debug_logging": "Debug Logging",
+  "text.lovelyeasyplace.config.allow_multiplayer": "Allow on Multiplayer",
+  "text.lovelyeasyplace.config.allow_multiplayer.tooltip": "Account safety default: OFF. Enabling this can violate server rules and cannot guarantee protection from anti-cheat action.",
 
   "text.lovelyeasyplace.config.blocks": "Supported Interactive Blocks",
   "text.lovelyeasyplace.config.place_on_chests": "Chests",
@@ -34,8 +36,7 @@
   "text.lovelyeasyplace.config.place_on_furnaces": "Furnaces",
   "text.lovelyeasyplace.config.place_on_smokers": "Smokers",
   "text.lovelyeasyplace.config.place_on_blast_furnaces": "Blast Furnaces",
-  "text.lovelyeasyplace.config.place_on_dispensers": "Dispensers",
-  "text.lovelyeasyplace.config.place_on_droppers": "Droppers",
+  "text.lovelyeasyplace.config.place_on_dispensers": "Dispenser Family",
   "text.lovelyeasyplace.config.place_on_barrels": "Barrels",
   "text.lovelyeasyplace.config.place_on_shulker_boxes": "Shulker Boxes",
   "text.lovelyeasyplace.config.place_on_crafters": "Crafters",

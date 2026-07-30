@@ -44,6 +44,13 @@ public class ClothConfigScreenCreator {
             .setSaveConsumer(value -> LovelyEasyPlaceConfig.debugLogging = value)
             .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.allow_multiplayer"), LovelyEasyPlaceConfig.allowMultiplayer)
+            .setDefaultValue(false)
+            .setTooltip(Text.translatable("text.lovelyeasyplace.config.allow_multiplayer.tooltip"))
+            .setSaveConsumer(value -> LovelyEasyPlaceConfig.allowMultiplayer = value)
+            .build());
+
         ConfigCategory blocks = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.blocks"));
 
         blocks.addEntry(entryBuilder.startBooleanToggle(
@@ -86,12 +93,6 @@ public class ClothConfigScreenCreator {
                 Text.translatable("text.lovelyeasyplace.config.place_on_dispensers"), LovelyEasyPlaceConfig.placeOnDispensers)
             .setDefaultValue(true)
             .setSaveConsumer(value -> LovelyEasyPlaceConfig.placeOnDispensers = value)
-            .build());
-
-        blocks.addEntry(entryBuilder.startBooleanToggle(
-                Text.translatable("text.lovelyeasyplace.config.place_on_droppers"), LovelyEasyPlaceConfig.placeOnDroppers)
-            .setDefaultValue(true)
-            .setSaveConsumer(value -> LovelyEasyPlaceConfig.placeOnDroppers = value)
             .build());
 
         blocks.addEntry(entryBuilder.startBooleanToggle(

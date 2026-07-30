@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
@@ -34,6 +36,8 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
 
     public static final String MOD_ID = "lovelyeasyplace";
     public static final Logger LOGGER  = LoggerFactory.getLogger(MOD_ID);
+
+    public static final Queue<Runnable> clickQueue = new ConcurrentLinkedQueue<>();
 
     private static KeyBinding toggleKey;
     private static KeyBinding holdKey;
@@ -77,6 +81,15 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         registerConnectionEvents();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!isEnabled()) {
+                clickQueue.clear();
+            } else if (client.player != null && !clickQueue.isEmpty()) {
+                Runnable task = clickQueue.poll();
+                if (task != null) {
+                    task.run();
+                }
+            }
+
             sendPendingServerWarning(client);
             handleToggleKey(client);
             handleHoldKey(client);
@@ -152,7 +165,8 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             currentServerAddress = getServerAddress(client);
             disabledByServer = isMultiplayer(client)
-                && LovelyEasyPlaceConfig.isServerDisabled(currentServerAddress);
+                && (!LovelyEasyPlaceConfig.allowMultiplayer
+                    || LovelyEasyPlaceConfig.isServerDisabled(currentServerAddress));
 
             if (disabledByServer) {
                 resetPlacementSneak(client.player);
@@ -169,6 +183,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             resetPlacementSneak(client.player);
+            clickQueue.clear();
             disabledByServer = false;
             currentServerAddress = "singleplayer";
             pendingWarningServerAddress = null;
@@ -272,13 +287,17 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (isMultiplayer(client)) {
             currentServerAddress = getServerAddress(client);
-            disabledByServer = LovelyEasyPlaceConfig.isServerDisabled(currentServerAddress);
+            disabledByServer = !LovelyEasyPlaceConfig.allowMultiplayer
+                || LovelyEasyPlaceConfig.isServerDisabled(currentServerAddress);
         } else {
             disabledByServer = false;
             currentServerAddress = "singleplayer";
         }
         if (!LovelyEasyPlaceConfig.holdMode) holdActive = false;
-        if (!isEnabled()) resetPlacementSneak(client.player);
+        if (!isEnabled()) {
+            resetPlacementSneak(client.player);
+            clickQueue.clear();
+        }
     }
 
     public static boolean isDisabledByServer()    { return disabledByServer; }
@@ -287,16 +306,6 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     private static String getServerAddress(MinecraftClient client) {
         if (client.getCurrentServerEntry() != null && client.getCurrentServerEntry().address != null) {
             return client.getCurrentServerEntry().address;
-        }
-        if (client.getNetworkHandler() != null && client.getNetworkHandler().getConnection() != null) {
-            java.net.SocketAddress sa = client.getNetworkHandler().getConnection().getAddress();
-            if (sa instanceof java.net.InetSocketAddress isa) {
-                String host = isa.getHostString();
-                if (host != null && !host.isBlank()) return host;
-            }
-            if (sa != null) {
-                return sa.toString();
-            }
         }
         return "multiplayer";
     }
@@ -308,6 +317,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     private static boolean shouldWarnForServer(MinecraftClient client) {
         return isMultiplayer(client)
             && LovelyEasyPlaceConfig.warnOnServerJoin
+            && LovelyEasyPlaceConfig.allowMultiplayer
             && (LovelyEasyPlaceConfig.enabled || LovelyEasyPlaceConfig.holdMode)
             && !LovelyEasyPlaceConfig.hasWarnedServer(currentServerAddress);
     }

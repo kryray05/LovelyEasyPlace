@@ -54,6 +54,14 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
             }
         ).dimensions(startX1, startY + spacing * 2, btnWidth, btnHeight).build());
 
+        this.addDrawableChild(ButtonWidget.builder(
+            getAllowMultiplayerText(),
+            btn -> {
+                LovelyEasyPlaceConfig.allowMultiplayer = !LovelyEasyPlaceConfig.allowMultiplayer;
+                btn.setMessage(getAllowMultiplayerText());
+            }
+        ).dimensions(startX1, startY + spacing * 3, btnWidth, btnHeight).build());
+
         // Column 2 Buttons
         // 1. Litematica Auto Rotate Toggle
         this.addDrawableChild(ButtonWidget.builder(
@@ -115,6 +123,10 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
 
     private Text getShowHudText() {
         return Text.literal("Show HUD Indicator: " + (LovelyEasyPlaceConfig.showHudIndicator ? "ON" : "OFF"));
+    }
+
+    private Text getAllowMultiplayerText() {
+        return Text.literal("Allow on Multiplayer: " + (LovelyEasyPlaceConfig.allowMultiplayer ? "ON" : "OFF"));
     }
 
     private Text getAutoRotateText() {
