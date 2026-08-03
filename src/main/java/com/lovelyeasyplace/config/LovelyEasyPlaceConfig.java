@@ -60,6 +60,7 @@ public class LovelyEasyPlaceConfig {
     public static boolean reversePlacement = false;
     public static boolean autoNoteBlockPitch = true;
     public static boolean matchRedstoneStates = true;
+    public static boolean autoPickFromInventory = true;
 
     public static List<String> disabledServers = new ArrayList<>();
     public static Set<String> warnedServers = new LinkedHashSet<>();
@@ -108,6 +109,7 @@ public class LovelyEasyPlaceConfig {
             reversePlacement = parseBoolean(props.getProperty("reversePlacement", "false"));
             autoNoteBlockPitch = parseBoolean(props.getProperty("autoNoteBlockPitch", "true"));
             matchRedstoneStates = parseBoolean(props.getProperty("matchRedstoneStates", "true"));
+            autoPickFromInventory = parseBoolean(props.getProperty("autoPickFromInventory", "true"));
 
             disabledServers = parseList(props.getProperty("disabledServers", ""));
             warnedServers = new LinkedHashSet<>(parseList(props.getProperty("warnedServers", "")));
@@ -159,6 +161,7 @@ public class LovelyEasyPlaceConfig {
             props.setProperty("reversePlacement", String.valueOf(reversePlacement));
             props.setProperty("autoNoteBlockPitch", String.valueOf(autoNoteBlockPitch));
             props.setProperty("matchRedstoneStates", String.valueOf(matchRedstoneStates));
+            props.setProperty("autoPickFromInventory", String.valueOf(autoPickFromInventory));
 
             props.setProperty("disabledServers", joinList(disabledServers));
             props.setProperty("warnedServers", joinList(warnedServers));
@@ -211,6 +214,7 @@ public class LovelyEasyPlaceConfig {
         reversePlacement = false;
         autoNoteBlockPitch = true;
         matchRedstoneStates = true;
+        autoPickFromInventory = true;
 
         disabledServers = new ArrayList<>();
         warnedServers = new LinkedHashSet<>();

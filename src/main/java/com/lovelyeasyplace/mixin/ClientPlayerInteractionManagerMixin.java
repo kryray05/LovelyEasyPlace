@@ -30,7 +30,11 @@ public class ClientPlayerInteractionManagerMixin {
     private Item lovelyeasyplace$heldBefore = null;
     private Float lovelyeasyplace$originalYaw = null;
     private Float lovelyeasyplace$originalPitch = null;
+    private BlockPos lovelyeasyplace$targetPlacedPos = null;
     private static boolean isAdjustingState = false;
+
+    // Track if we need to restore rotation after placement
+    private boolean lovelyeasyplace$needsRotationRestore = false;
 
     @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
     private void onInteractBlockHead(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
@@ -40,12 +44,26 @@ public class ClientPlayerInteractionManagerMixin {
 
         MinecraftClient client = MinecraftClient.getInstance();
 
-        // 1. Check if manually right-clicking an existing Note Block to tune it
-        if (!player.isSneaking() && LovelyEasyPlaceConfig.autoNoteBlockPitch && !(player.getStackInHand(hand).getItem() instanceof BlockItem)) {
-            BlockPos clickedPos = hitResult.getBlockPos();
-            BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
-            if (clickedState.getBlock() instanceof NoteBlock) {
+        BlockPos clickedPos = hitResult.getBlockPos();
+        BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
+        BlockPos placedPos = clickedState.isReplaceable() ? clickedPos : clickedPos.offset(hitResult.getSide());
+        this.lovelyeasyplace$targetPlacedPos = placedPos;
+
+        // Auto-fetch item from inventory if enabled
+        if (LovelyEasyPlaceConfig.autoPickFromInventory && hand == Hand.MAIN_HAND) {
+            tryAutoPickItemFromInventory(client, player, player.getEntityWorld(), hitResult, placedPos);
+        }
+
+        // 1. Check if manually right-clicking an existing Note Block, Repeater, or Comparator to adjust it
+        if (!player.isSneaking()) {
+            BlockState targetState = player.getEntityWorld().getBlockState(clickedPos);
+            if (LovelyEasyPlaceConfig.autoNoteBlockPitch && targetState.getBlock() instanceof NoteBlock) {
                 if (adjustNoteBlock(client, player, hand, clickedPos, hitResult)) {
+                    cir.setReturnValue(ActionResult.SUCCESS);
+                    return;
+                }
+            } else if (LovelyEasyPlaceConfig.matchRedstoneStates && (targetState.getBlock() instanceof RepeaterBlock || targetState.getBlock() instanceof ComparatorBlock)) {
+                if (adjustRedstoneComponent(client, player, hand, clickedPos, hitResult)) {
                     cir.setReturnValue(ActionResult.SUCCESS);
                     return;
                 }
@@ -62,10 +80,6 @@ public class ClientPlayerInteractionManagerMixin {
         lovelyeasyplace$heldBefore = stack.getItem();
 
         if (lovelyeasyplace$heldBefore instanceof BlockItem blockItem) {
-            BlockPos clickedPos = hitResult.getBlockPos();
-            BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
-            BlockPos placedPos = clickedState.isReplaceable() ? clickedPos : clickedPos.offset(hitResult.getSide());
-
             Direction targetFacing = null;
 
             // Check Litematica schematic facing
@@ -83,20 +97,16 @@ public class ClientPlayerInteractionManagerMixin {
 
             if (targetFacing != null) {
                 float[] angles = getRequiredYawAndPitch(targetFacing, blockItem.getBlock(), player);
-                float[] aligned = alignToGCD(client, angles[0], angles[1]);
 
-                if (player.networkHandler != null) {
-                    player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
-                        aligned[0], aligned[1], player.isOnGround(), player.horizontalCollision
-                    ));
-                }
-
+                // Save original rotation
                 lovelyeasyplace$originalYaw = player.getYaw();
                 lovelyeasyplace$originalPitch = player.getPitch();
 
-                // Set client player local rotation so placement prediction uses spoofed facing (prevents prediction flicker)
-                player.setYaw(aligned[0]);
-                player.setPitch(aligned[1]);
+                // Set client player local rotation so placement packet uses target facing
+                player.setYaw(angles[0]);
+                player.setPitch(angles[1]);
+
+                lovelyeasyplace$needsRotationRestore = true;
             }
         }
     }
@@ -107,19 +117,22 @@ public class ClientPlayerInteractionManagerMixin {
             return;
         }
 
-        // Restore rotation
-        if (lovelyeasyplace$originalYaw != null && lovelyeasyplace$originalPitch != null) {
-            if (player.networkHandler != null) {
-                MinecraftClient client = MinecraftClient.getInstance();
-                float[] alignedOriginal = alignToGCD(client, lovelyeasyplace$originalYaw, lovelyeasyplace$originalPitch);
-                player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
-                    alignedOriginal[0], alignedOriginal[1], player.isOnGround(), player.horizontalCollision
-                ));
-            }
+        // Restore client local rotation immediately and schedule packet restore with 1 tick delay
+        if (lovelyeasyplace$needsRotationRestore && lovelyeasyplace$originalYaw != null && lovelyeasyplace$originalPitch != null) {
             player.setYaw(lovelyeasyplace$originalYaw);
             player.setPitch(lovelyeasyplace$originalPitch);
+
+            if (player.networkHandler != null) {
+                LovelyEasyPlaceMod.scheduleRotationRestore(
+                    player,
+                    lovelyeasyplace$originalYaw,
+                    lovelyeasyplace$originalPitch
+                );
+            }
+
             lovelyeasyplace$originalYaw = null;
             lovelyeasyplace$originalPitch = null;
+            lovelyeasyplace$needsRotationRestore = false;
         }
 
         // End sneak-faking
@@ -127,11 +140,9 @@ public class ClientPlayerInteractionManagerMixin {
 
         // Auto-tune placed note block or redstone component
         if (cir.getReturnValue() != null && cir.getReturnValue().isAccepted()) {
-            if (lovelyeasyplace$heldBefore instanceof BlockItem blockItem) {
-                BlockPos clickedPos = hitResult.getBlockPos();
-                BlockState clickedState = player.getEntityWorld().getBlockState(clickedPos);
-                BlockPos placedPos = clickedState.isReplaceable() ? clickedPos : clickedPos.offset(hitResult.getSide());
-
+            BlockPos placedPos = this.lovelyeasyplace$targetPlacedPos;
+            if (placedPos != null) {
+                BlockState placedState = player.getEntityWorld().getBlockState(placedPos);
                 MinecraftClient client = MinecraftClient.getInstance();
                 BlockHitResult newHit = new BlockHitResult(
                     Vec3d.ofCenter(placedPos),
@@ -139,15 +150,43 @@ public class ClientPlayerInteractionManagerMixin {
                     placedPos,
                     false
                 );
-                if (LovelyEasyPlaceConfig.autoNoteBlockPitch && blockItem.getBlock() instanceof NoteBlock) {
+                if (LovelyEasyPlaceConfig.autoNoteBlockPitch && placedState.getBlock() instanceof NoteBlock) {
                     adjustNoteBlock(client, player, hand, placedPos, newHit);
-                } else if (LovelyEasyPlaceConfig.matchRedstoneStates && (blockItem.getBlock() instanceof RepeaterBlock || blockItem.getBlock() instanceof ComparatorBlock)) {
+                } else if (LovelyEasyPlaceConfig.matchRedstoneStates && (placedState.getBlock() instanceof RepeaterBlock || placedState.getBlock() instanceof ComparatorBlock)) {
                     adjustRedstoneComponent(client, player, hand, placedPos, newHit);
                 }
             }
         }
 
         lovelyeasyplace$heldBefore = null;
+        lovelyeasyplace$targetPlacedPos = null;
+    }
+
+    private boolean tryAutoPickItemFromInventory(MinecraftClient client, ClientPlayerEntity player, World world, BlockHitResult hitResult, BlockPos placedPos) {
+        if (client.interactionManager == null) return false;
+
+        BlockState schematic = LitematicaAdapter.getSchematicState(world, placedPos);
+        if (schematic == null || schematic.isAir()) {
+            schematic = LitematicaAdapter.getSchematicState(world, hitResult.getBlockPos());
+        }
+
+        if (schematic != null && !schematic.isAir()) {
+            Item targetItem = schematic.getBlock().asItem();
+            if (targetItem != null && targetItem != net.minecraft.item.Items.AIR) {
+                if (player.getStackInHand(Hand.MAIN_HAND).isOf(targetItem) || player.getStackInHand(Hand.OFF_HAND).isOf(targetItem)) {
+                    return false;
+                }
+
+                for (int i = 0; i < 36; i++) {
+                    ItemStack stack = player.getInventory().getStack(i);
+                    if (stack.isOf(targetItem)) {
+                        LovelyEasyPlaceMod.pickOrSwapSlot(player, client.interactionManager, i);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean adjustNoteBlock(MinecraftClient client, ClientPlayerEntity player, Hand hand, BlockPos pos, BlockHitResult hitResult) {
@@ -403,30 +442,9 @@ public class ClientPlayerInteractionManagerMixin {
         return new float[]{yaw, pitch};
     }
 
+    @Deprecated
     private static float[] alignToGCD(MinecraftClient client, float yaw, float pitch) {
-        if (client == null || client.options == null) {
-            return new float[]{yaw, pitch};
-        }
-        double sensitivity = client.options.getMouseSensitivity().getValue();
-        double f = sensitivity * 0.6D + 0.2D;
-        double g = f * f * f * 8.0D;
-        double step = g * 0.15D;
-
-        if (client.player != null) {
-            float currentYaw = client.player.getYaw();
-            float currentPitch = client.player.getPitch();
-
-            float diffYaw = yaw - currentYaw;
-            long stepsYaw = Math.round(diffYaw / step);
-            float alignedYaw = currentYaw + (float)(stepsYaw * step);
-
-            float diffPitch = pitch - currentPitch;
-            long stepsPitch = Math.round(diffPitch / step);
-            float alignedPitch = currentPitch + (float)(stepsPitch * step);
-
-            return new float[]{alignedYaw, alignedPitch};
-        }
-
+        // GCD alignment creates unnatural yaw/pitch ticks that trigger AimModulo360 checks
         return new float[]{yaw, pitch};
     }
 }

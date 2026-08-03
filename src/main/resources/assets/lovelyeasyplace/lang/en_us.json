@@ -57,6 +57,8 @@
   "text.lovelyeasyplace.config.place_on_note_blocks": "Note Blocks",
 
   "text.lovelyeasyplace.config.placement": "Schematic & Placement Helpers",
+  "text.lovelyeasyplace.config.auto_pick_from_inventory": "Auto-Fetch Item from Inventory",
+  "text.lovelyeasyplace.config.auto_pick_from_inventory.tooltip": "Automatically pick required schematic block items from inventory into hotbar.",
   "text.lovelyeasyplace.config.auto_rotate": "Litematica: Auto Rotate",
   "text.lovelyeasyplace.config.reverse_placement": "Reverse Placement",
   "text.lovelyeasyplace.config.auto_noteblock_pitch": "Match Note Block Pitch",

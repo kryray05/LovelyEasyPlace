@@ -206,6 +206,13 @@ public class ClothConfigScreenCreator {
         ConfigCategory placement = builder.getOrCreateCategory(Text.translatable("text.lovelyeasyplace.config.placement"));
 
         placement.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("text.lovelyeasyplace.config.auto_pick_from_inventory"), LovelyEasyPlaceConfig.autoPickFromInventory)
+            .setDefaultValue(true)
+            .setTooltip(Text.translatable("text.lovelyeasyplace.config.auto_pick_from_inventory.tooltip"))
+            .setSaveConsumer(value -> LovelyEasyPlaceConfig.autoPickFromInventory = value)
+            .build());
+
+        placement.addEntry(entryBuilder.startBooleanToggle(
                 Text.translatable("text.lovelyeasyplace.config.auto_rotate"), LovelyEasyPlaceConfig.autoRotate)
             .setDefaultValue(true)
             .setSaveConsumer(value -> LovelyEasyPlaceConfig.autoRotate = value)

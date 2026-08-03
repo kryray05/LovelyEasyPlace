@@ -99,8 +99,17 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
             }
         ).dimensions(startX2, startY + spacing * 3, btnWidth, btnHeight).build());
 
+        // 5. Auto Pick from Inv Toggle
+        this.addDrawableChild(ButtonWidget.builder(
+            getAutoPickText(),
+            btn -> {
+                LovelyEasyPlaceConfig.autoPickFromInventory = !LovelyEasyPlaceConfig.autoPickFromInventory;
+                btn.setMessage(getAutoPickText());
+            }
+        ).dimensions(startX1, startY + spacing * 4, btnWidth * 2 + 10, btnHeight).build());
+
         // Bottom Control Buttons
-        int bottomY = startY + spacing * 4 + 10;
+        int bottomY = startY + spacing * 5 + 10;
         this.addDrawableChild(ButtonWidget.builder(
             Text.translatable("gui.done"),
             btn -> {
@@ -143,6 +152,10 @@ public class LovelyEasyPlaceFallbackConfigScreen extends Screen {
 
     private Text getMatchRedstoneStatesText() {
         return Text.literal("Match Redstone States: " + (LovelyEasyPlaceConfig.matchRedstoneStates ? "ON" : "OFF"));
+    }
+
+    private Text getAutoPickText() {
+        return Text.literal("Auto-Fetch Item from Inv: " + (LovelyEasyPlaceConfig.autoPickFromInventory ? "ON" : "OFF"));
     }
 
     @Override

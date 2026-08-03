@@ -11,17 +11,29 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PlayerInput;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import com.lovelyeasyplace.integration.LitematicaAdapter;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +50,8 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     public static final Logger LOGGER  = LoggerFactory.getLogger(MOD_ID);
 
     public static final Queue<Runnable> clickQueue = new ConcurrentLinkedQueue<>();
+    public static final Queue<Runnable> rotationRestoreQueue = new ConcurrentLinkedQueue<>();
+    private static int rotationRestoreTickCounter = 0;
 
     private static KeyBinding toggleKey;
     private static KeyBinding holdKey;
@@ -83,6 +97,7 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!isEnabled()) {
                 clickQueue.clear();
+                rotationRestoreQueue.clear();
             } else if (client.player != null && !clickQueue.isEmpty()) {
                 Runnable task = clickQueue.poll();
                 if (task != null) {
@@ -90,6 +105,18 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
                 }
             }
 
+            if (!rotationRestoreQueue.isEmpty()) {
+                rotationRestoreTickCounter++;
+                if (rotationRestoreTickCounter >= 1) { // 1 tick delay
+                    Runnable task = rotationRestoreQueue.poll();
+                    if (task != null) {
+                        task.run();
+                    }
+                    rotationRestoreTickCounter = 0;
+                }
+            }
+
+            tickAutoPick(client);
             sendPendingServerWarning(client);
             handleToggleKey(client);
             handleHoldKey(client);
@@ -107,6 +134,57 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         });
 
         LOGGER.info("LovelyEasyPlace initialized");
+    }
+
+    private static void tickAutoPick(MinecraftClient client) {
+        if (!isEnabled() || !LovelyEasyPlaceConfig.autoPickFromInventory || client.player == null || client.interactionManager == null) {
+            return;
+        }
+        if (client.crosshairTarget instanceof BlockHitResult blockHit) {
+            BlockPos clickedPos = blockHit.getBlockPos();
+            World world = client.player.getEntityWorld();
+            BlockState clickedState = world.getBlockState(clickedPos);
+            BlockPos placedPos = clickedState.isReplaceable() ? clickedPos : clickedPos.offset(blockHit.getSide());
+
+            BlockState schematic = LitematicaAdapter.getSchematicState(world, placedPos);
+            if (schematic == null || schematic.isAir()) {
+                schematic = LitematicaAdapter.getSchematicState(world, clickedPos);
+            }
+
+            if (schematic != null && !schematic.isAir()) {
+                Item targetItem = schematic.getBlock().asItem();
+                if (targetItem != null && targetItem != Items.AIR) {
+                    if (!client.player.getStackInHand(Hand.MAIN_HAND).isOf(targetItem)
+                            && !client.player.getStackInHand(Hand.OFF_HAND).isOf(targetItem)) {
+                        for (int i = 0; i < 36; i++) {
+                            ItemStack stack = client.player.getInventory().getStack(i);
+                            if (stack.isOf(targetItem)) {
+                                pickOrSwapSlot(client.player, client.interactionManager, i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void pickOrSwapSlot(ClientPlayerEntity player, net.minecraft.client.network.ClientPlayerInteractionManager interactionManager, int slot) {
+        if (PlayerInventory.isValidHotbarIndex(slot)) {
+            player.getInventory().setSelectedSlot(slot);
+        } else if (slot >= 9 && slot < 36) {
+            int currentSelected = player.getInventory().getSelectedSlot();
+            player.getInventory().swapSlotWithHotbar(slot);
+            if (interactionManager != null && player.playerScreenHandler != null) {
+                interactionManager.clickSlot(
+                    player.playerScreenHandler.syncId,
+                    slot,
+                    currentSelected,
+                    SlotActionType.SWAP,
+                    player
+                );
+            }
+        }
     }
 
     private static void registerPauseMenuButton() {
@@ -260,9 +338,6 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
                 current.sprint()
             );
             player.input.playerInput = restored;
-            if (player.networkHandler != null) {
-                player.networkHandler.sendPacket(new PlayerInputC2SPacket(restored));
-            }
             debugLog("Restored sneak input at " + Instant.now());
         }
         placementSneaking = false;
@@ -352,5 +427,19 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
 
     public static void debugLog(String message) {
         if (LovelyEasyPlaceConfig.debugLogging) LOGGER.info("[debug] {}", message);
+    }
+
+    public static void scheduleRotationRestore(ClientPlayerEntity player, float originalYaw, float originalPitch) {
+        rotationRestoreQueue.add(() -> {
+            if (player != null && player.networkHandler != null) {
+                player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
+                    originalYaw,
+                    originalPitch,
+                    player.isOnGround(),
+                    player.horizontalCollision
+                ));
+                debugLog("Restored rotation after placement: yaw=" + originalYaw + " pitch=" + originalPitch);
+            }
+        });
     }
 }
