@@ -50,8 +50,6 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
     public static final Logger LOGGER  = LoggerFactory.getLogger(MOD_ID);
 
     public static final Queue<Runnable> clickQueue = new ConcurrentLinkedQueue<>();
-    public static final Queue<Runnable> rotationRestoreQueue = new ConcurrentLinkedQueue<>();
-    private static int rotationRestoreTickCounter = 0;
 
     private static KeyBinding toggleKey;
     private static KeyBinding holdKey;
@@ -97,22 +95,10 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!isEnabled()) {
                 clickQueue.clear();
-                rotationRestoreQueue.clear();
             } else if (client.player != null && !clickQueue.isEmpty()) {
                 Runnable task = clickQueue.poll();
                 if (task != null) {
                     task.run();
-                }
-            }
-
-            if (!rotationRestoreQueue.isEmpty()) {
-                rotationRestoreTickCounter++;
-                if (rotationRestoreTickCounter >= 1) { // 1 tick delay
-                    Runnable task = rotationRestoreQueue.poll();
-                    if (task != null) {
-                        task.run();
-                    }
-                    rotationRestoreTickCounter = 0;
                 }
             }
 
@@ -429,17 +415,22 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         if (LovelyEasyPlaceConfig.debugLogging) LOGGER.info("[debug] {}", message);
     }
 
-    public static void scheduleRotationRestore(ClientPlayerEntity player, float originalYaw, float originalPitch) {
-        rotationRestoreQueue.add(() -> {
-            if (player != null && player.networkHandler != null) {
-                player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
-                    originalYaw,
-                    originalPitch,
-                    player.isOnGround(),
-                    player.horizontalCollision
-                ));
-                debugLog("Restored rotation after placement: yaw=" + originalYaw + " pitch=" + originalPitch);
-            }
-        });
+    /**
+     * Sends the rotation restore immediately after placement with enough variation
+     * to avoid consecutive identical look packets.
+     */
+    public static void sendRotationRestore(ClientPlayerEntity player, float originalYaw, float originalPitch) {
+        if (player != null && player.networkHandler != null) {
+            float noiseYaw = originalYaw + (float) (Math.random() * 0.002 - 0.001);
+            float noisePitch = originalPitch + (float) (Math.random() * 0.002 - 0.001);
+
+            player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
+                noiseYaw,
+                noisePitch,
+                player.isOnGround(),
+                player.horizontalCollision
+            ));
+            debugLog("Restored rotation: yaw=" + noiseYaw + " pitch=" + noisePitch);
+        }
     }
 }

@@ -10,7 +10,6 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -117,13 +116,13 @@ public class ClientPlayerInteractionManagerMixin {
             return;
         }
 
-        // Restore client local rotation immediately and schedule packet restore with 1 tick delay
+        // Restore client local rotation and notify the server immediately.
         if (lovelyeasyplace$needsRotationRestore && lovelyeasyplace$originalYaw != null && lovelyeasyplace$originalPitch != null) {
             player.setYaw(lovelyeasyplace$originalYaw);
             player.setPitch(lovelyeasyplace$originalPitch);
 
             if (player.networkHandler != null) {
-                LovelyEasyPlaceMod.scheduleRotationRestore(
+                LovelyEasyPlaceMod.sendRotationRestore(
                     player,
                     lovelyeasyplace$originalYaw,
                     lovelyeasyplace$originalPitch
@@ -438,6 +437,11 @@ public class ClientPlayerInteractionManagerMixin {
                 }
             }
         }
+
+        // Keep spoofed rotations unique so consecutive placements do not produce
+        // identical look values.
+        yaw += (float) (Math.random() * 0.0018 - 0.0009);
+        pitch += (float) (Math.random() * 0.0018 - 0.0009);
 
         return new float[]{yaw, pitch};
     }
