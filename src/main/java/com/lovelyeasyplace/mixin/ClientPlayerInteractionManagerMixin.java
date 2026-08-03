@@ -10,6 +10,7 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -101,9 +102,20 @@ public class ClientPlayerInteractionManagerMixin {
                 lovelyeasyplace$originalYaw = player.getYaw();
                 lovelyeasyplace$originalPitch = player.getPitch();
 
-                // Set client player local rotation so placement packet uses target facing
+                // Set the local rotation and send it before vanilla sends the interaction packet.
                 player.setYaw(angles[0]);
                 player.setPitch(angles[1]);
+
+                if (player.networkHandler != null) {
+                    float spoofYaw = angles[0] + (float) (Math.random() * 0.002 - 0.001);
+                    float spoofPitch = angles[1] + (float) (Math.random() * 0.002 - 0.001);
+                    player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
+                        spoofYaw,
+                        spoofPitch,
+                        player.isOnGround(),
+                        player.horizontalCollision
+                    ));
+                }
 
                 lovelyeasyplace$needsRotationRestore = true;
             }
@@ -122,11 +134,14 @@ public class ClientPlayerInteractionManagerMixin {
             player.setPitch(lovelyeasyplace$originalPitch);
 
             if (player.networkHandler != null) {
-                LovelyEasyPlaceMod.sendRotationRestore(
-                    player,
-                    lovelyeasyplace$originalYaw,
-                    lovelyeasyplace$originalPitch
-                );
+                float restoreYaw = lovelyeasyplace$originalYaw + (float) (Math.random() * 0.002 - 0.001);
+                float restorePitch = lovelyeasyplace$originalPitch + (float) (Math.random() * 0.002 - 0.001);
+                player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
+                    restoreYaw,
+                    restorePitch,
+                    player.isOnGround(),
+                    player.horizontalCollision
+                ));
             }
 
             lovelyeasyplace$originalYaw = null;

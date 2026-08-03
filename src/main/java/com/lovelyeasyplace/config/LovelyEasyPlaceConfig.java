@@ -53,7 +53,7 @@ public class LovelyEasyPlaceConfig {
     public static boolean holdMode = false;
     public static boolean debugLogging = false;
     public static boolean allowMultiplayer = false;
-    public static int minPlacementIntervalMs = 0;
+    public static int minPlacementIntervalMs = 50;
     
     // Custom requested features
     public static boolean autoRotate = true;
@@ -103,7 +103,7 @@ public class LovelyEasyPlaceConfig {
             holdMode = parseBoolean(props.getProperty("holdMode", "false"));
             debugLogging = parseBoolean(props.getProperty("debugLogging", "false"));
             allowMultiplayer = parseBoolean(props.getProperty("allowMultiplayer", "false"));
-            minPlacementIntervalMs = parseInt(props.getProperty("minPlacementIntervalMs", "0"), 0);
+            minPlacementIntervalMs = parseInt(props.getProperty("minPlacementIntervalMs", "50"), 50);
             
             autoRotate = parseBoolean(props.getProperty("autoRotate", "true"));
             reversePlacement = parseBoolean(props.getProperty("reversePlacement", "false"));
@@ -208,7 +208,7 @@ public class LovelyEasyPlaceConfig {
         holdMode = false;
         debugLogging = false;
         allowMultiplayer = false;
-        minPlacementIntervalMs = 0;
+        minPlacementIntervalMs = 50;
         
         autoRotate = true;
         reversePlacement = false;

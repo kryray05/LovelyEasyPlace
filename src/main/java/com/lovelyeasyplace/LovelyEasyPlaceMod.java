@@ -23,7 +23,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -415,22 +414,4 @@ public class LovelyEasyPlaceMod implements ClientModInitializer {
         if (LovelyEasyPlaceConfig.debugLogging) LOGGER.info("[debug] {}", message);
     }
 
-    /**
-     * Sends the rotation restore immediately after placement with enough variation
-     * to avoid consecutive identical look packets.
-     */
-    public static void sendRotationRestore(ClientPlayerEntity player, float originalYaw, float originalPitch) {
-        if (player != null && player.networkHandler != null) {
-            float noiseYaw = originalYaw + (float) (Math.random() * 0.002 - 0.001);
-            float noisePitch = originalPitch + (float) (Math.random() * 0.002 - 0.001);
-
-            player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
-                noiseYaw,
-                noisePitch,
-                player.isOnGround(),
-                player.horizontalCollision
-            ));
-            debugLog("Restored rotation: yaw=" + noiseYaw + " pitch=" + noisePitch);
-        }
-    }
 }
